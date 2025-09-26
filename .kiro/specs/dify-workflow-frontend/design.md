@@ -43,12 +43,19 @@ graph TB
 
 #### AuthProvider Component
 
+実装ファイル構造:
+- `src/types/auth.ts` - 認証関連の型定義
+- `src/context/AuthContext.tsx` - React Context実装
+- `src/context/authReducer.ts` - 認証状態管理用reducer
+- `src/context/index.ts` - エクスポート用インデックス
+- `src/types/index.ts` - 型定義エクスポート用インデックス
+
 ```typescript
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (provider: AuthProvider) => Promise<void>;
+  login: (provider: AuthProviderType) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
 }
@@ -57,7 +64,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  provider: 'azure' | 'github' | 'google';
+  provider: AuthProviderType;
   attributes: UserAttributes;
   permissions: Permission[];
 }
@@ -68,6 +75,8 @@ interface UserAttributes {
   department?: string;
   organization?: string;
 }
+
+type AuthProviderType = 'azure' | 'github' | 'google';
 ```
 
 #### OAuth Configuration
@@ -157,9 +166,13 @@ interface WorkflowResult {
 import type { Config } from '@react-router/dev/config';
 
 export default {
-  ssr: false, // SPA mode for client-side only application
+  // Enable SPA mode (no server-side rendering)
+  ssr: false,
+  // Configure the app directory
   appDirectory: 'app',
+  // Configure build directory
   buildDirectory: 'dist',
+  // Configure public directory
   publicPath: '/',
 } satisfies Config;
 
@@ -235,6 +248,25 @@ interface SessionData {
   expiresAt: number;
   user: User;
 }
+
+// Authentication state for useReducer
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
+// Authentication actions for useReducer
+type AuthAction =
+  | { type: 'LOGIN_START' }
+  | { type: 'LOGIN_SUCCESS'; payload: User }
+  | { type: 'LOGIN_FAILURE'; payload: string }
+  | { type: 'LOGOUT' }
+  | { type: 'REFRESH_TOKEN_SUCCESS'; payload: User }
+  | { type: 'REFRESH_TOKEN_FAILURE' }
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'CLEAR_ERROR' };
 ```
 
 ### Workflow Models
@@ -366,6 +398,10 @@ interface SecurityPolicy {
 
 ### Test Configuration
 
+実装されたテスト設定ファイル:
+- `jest.config.js` - Jest設定
+- `src/setupTests.ts` - テスト環境セットアップ（ポリフィル、モック）
+
 ```typescript
 // Jest Configuration
 interface TestConfig {
@@ -488,6 +524,12 @@ interface EnvironmentConfig {
   logLevel: 'debug' | 'info' | 'warn' | 'error';
 }
 
+// 実際の環境変数構造（VITE_プレフィックス必須）
+// .env (デフォルト値)
+// .env.development (開発環境設定)
+// .env.staging (ステージング環境設定) 
+// .env.production (本番環境設定)
+
 // Environment Files Structure:
 // - .env (default values)
 // - .env.development (development overrides)
@@ -519,6 +561,7 @@ interface EnvironmentConfig {
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "erasableSyntaxOnly": true,
     
     // Additional strict mode options
     "exactOptionalPropertyTypes": true,
@@ -538,6 +581,11 @@ interface EnvironmentConfig {
 ```typescript
 // .eslintrc.json
 {
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "node": true
+  },
   "extends": [
     "eslint:recommended",
     "@typescript-eslint/recommended",
@@ -546,6 +594,15 @@ interface EnvironmentConfig {
     "plugin:react-hooks/recommended",
     "prettier"
   ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
   "plugins": [
     "react",
     "react-hooks", 
@@ -569,7 +626,12 @@ interface EnvironmentConfig {
         "react-refresh/only-export-components": "off"
       }
     }
-  ]
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }
 
 // .prettierrc
