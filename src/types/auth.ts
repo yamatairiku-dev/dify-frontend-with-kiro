@@ -34,6 +34,7 @@ export interface AuthContextType {
   login: (provider: AuthProviderType) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
+  completeLogin: (sessionData: SessionData) => Promise<void>;
 }
 
 export type AuthProviderType = 'azure' | 'github' | 'google';

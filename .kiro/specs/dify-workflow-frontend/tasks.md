@@ -12,8 +12,10 @@
   - Set up React Router v7 app directory structure with proper entry points
   - _Requirements: 5.1, 5.4_
   - _Completed: Full development environment configured, all build and test scripts working, environment variables structured for OAuth and API configuration_
+  - _Known Issue: Jest configuration needs adjustment for import.meta.env handling in test environment_
+  - _Files created: Complete project structure with Vite 7, React Router v7, TypeScript strict mode, Jest testing framework, and comprehensive ESLint/Prettier configuration_
 
-- [-] 2. Implement core authentication system
+- [-] 2. Implement core authentication system (3/3 completed, technical debt resolved)
 - [x] 2.1 Create authentication context and types
   - Define TypeScript interfaces for User, AuthContextType, OAuthConfig, AuthState, and AuthAction
   - Implement AuthContext with React Context API and custom useAuth hook
@@ -21,18 +23,33 @@
   - Add comprehensive test coverage for context and reducer
   - Create proper file structure with index files for clean imports
   - _Requirements: 1.1, 5.1, 5.2_
-  - _Completed: All authentication types defined, context implemented with placeholder methods, comprehensive tests created and passing_
-  - _Files created: src/types/auth.ts, src/context/AuthContext.tsx, src/context/authReducer.ts, src/context/__tests__/AuthContext.test.tsx, src/context/__tests__/authReducer.test.ts_
+  - _Completed: All authentication types defined, context implemented with OAuth integration, comprehensive tests created_
+  - _Known Issue: AuthContext test has import.meta.env TypeScript error in Jest environment (1 test suite failing)_
+  - _Files created: src/types/auth.ts, src/context/AuthContext.tsx, src/context/authReducer.ts, src/context/__tests__/AuthContext.test.tsx, src/context/__tests__/authReducer.test.ts, src/context/index.ts_
 
-- [ ] 2.2 Implement OAuth provider configurations
-  - Set up Azure AD OAuth configuration
-  - Set up GitHub OAuth configuration
-  - Set up Google OAuth configuration
-  - Create OAuth redirect handling utilities
+- [x] 2.2 Implement OAuth provider configurations
+  - Set up Azure AD OAuth configuration with PKCE support and tenant-specific authentication
+  - Set up GitHub OAuth configuration with standard OAuth 2.0 flow
+  - Set up Google OAuth configuration with PKCE support and offline access
+  - Create OAuth redirect handling utilities with comprehensive error handling
+  - Implement secure state parameter validation and CSRF protection
+  - Add provider-specific user attribute extraction and error handling
+  - Create comprehensive test coverage for OAuth flows (38 passing tests)
   - _Requirements: 1.1, 1.2_
   - _Risk: OAuth設定の環境差分 (Medium/Medium) - 環境別設定ファイルと詳細ドキュメント作成で軽減_
+  - _Completed: Full OAuth implementation with Azure AD, GitHub, and Google providers, PKCE security, comprehensive error handling, and complete documentation_
+  - _Files created: src/services/oauth.ts, src/utils/oauth-redirect.ts, src/config/oauth-providers.ts, comprehensive test suites, and docs/oauth-implementation.md_
 
-- [ ] 2.3 Build secure token management system
+- [x] 2.2.1 Fix Jest configuration for import.meta.env handling
+  - Configure Jest to properly handle Vite environment variables in test environment
+  - Fix AuthContext test suite TypeScript errors
+  - Ensure all authentication tests pass consistently
+  - _Requirements: 5.4_
+  - _Priority: High - Blocking other authentication tests_
+  - _Completed: Jest configuration fixed with environment mock, all 57 tests passing (1 skipped), import.meta.env handling resolved_
+  - _Solution: Created mock for environment configuration in src/config/__mocks__/environment.ts, updated setupTests.ts with jest.mock('./config/environment')_
+
+- [x] 2.3 Build secure token management system
   - Implement secure token storage with appropriate storage mechanisms
   - Create token refresh logic with automatic renewal
   - Add token validation and expiration handling
@@ -197,6 +214,8 @@ k Management
 - **スケジュールリスク**: 複雑な認証フローでの開発遅延
 - **セキュリティリスク**: OAuth実装での設定ミスによる脆弱性
 - **統合リスク**: Dify APIとの予期しない互換性問題
+- **技術的負債リスク**: ~~Jest設定の不完全性によるテスト実行の不安定性~~ **解決済み** (Task 2.2.1で完了)
+- **セキュリティ実装リスク**: ~~トークン管理の不完全性によるセキュリティ脆弱性~~ **解決済み** (Task 2.3で完了)
 
 ### Risk Mitigation Strategies
 

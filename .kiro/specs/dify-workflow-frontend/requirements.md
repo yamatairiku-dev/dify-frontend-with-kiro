@@ -72,8 +72,10 @@ DifyワークフローをバックエンドAPIとして利用するWebフロン�
 
 #### Acceptance Criteria
 
-1. WHEN a user authenticates THEN the system SHALL store session data securely in browser storage
-2. WHEN a user closes and reopens the browser THEN the system SHALL restore valid sessions automatically
-3. WHEN a session expires THEN the system SHALL clear stored credentials and redirect to login
-4. WHEN a user logs out THEN the system SHALL clear all session data and revoke tokens
-5. IF suspicious activity is detected THEN the system SHALL invalidate the session immediately
+1. WHEN a user authenticates THEN the system SHALL store session data securely in browser storage with appropriate separation (access tokens in sessionStorage, refresh tokens in localStorage)
+2. WHEN a user closes and reopens the browser THEN the system SHALL restore valid sessions automatically using stored refresh tokens
+3. WHEN a session expires THEN the system SHALL clear stored credentials and redirect to login, with automatic token refresh attempted before expiration
+4. WHEN a user logs out THEN the system SHALL clear all session data and revoke tokens from both sessionStorage and localStorage
+5. IF suspicious activity is detected (excessive refresh attempts, session age anomalies) THEN the system SHALL invalidate the session immediately
+6. WHEN tokens are near expiration THEN the system SHALL automatically refresh them with a 5-minute buffer to prevent session interruption
+7. WHEN session restoration fails THEN the system SHALL gracefully handle errors and redirect to authentication flow

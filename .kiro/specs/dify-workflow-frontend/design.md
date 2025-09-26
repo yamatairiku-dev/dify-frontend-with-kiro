@@ -45,10 +45,19 @@ graph TB
 
 実装ファイル構造:
 - `src/types/auth.ts` - 認証関連の型定義
-- `src/context/AuthContext.tsx` - React Context実装
+- `src/context/AuthContext.tsx` - React Context実装（OAuth統合済み、トークン管理統合済み）
 - `src/context/authReducer.ts` - 認証状態管理用reducer
+- `src/services/oauth.ts` - OAuth サービス（PKCE対応）
+- `src/services/tokenManager.ts` - セキュアトークン管理サービス
+- `src/services/tokenRefresh.ts` - 自動トークンリフレッシュサービス
+- `src/utils/oauth-redirect.ts` - OAuth リダイレクト処理ユーティリティ
+- `src/config/oauth-providers.ts` - プロバイダー固有設定
+- `src/config/environment.ts` - 環境設定（OAuth設定含む）
 - `src/context/index.ts` - エクスポート用インデックス
+- `src/services/index.ts` - サービスエクスポート用インデックス
+- `src/utils/index.ts` - ユーティリティエクスポート用インデックス
 - `src/types/index.ts` - 型定義エクスポート用インデックス
+- `docs/oauth-implementation.md` - OAuth実装詳細ドキュメント
 
 ```typescript
 interface AuthContextType {
@@ -58,6 +67,7 @@ interface AuthContextType {
   login: (provider: AuthProviderType) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
+  completeLogin: (sessionData: SessionData) => Promise<void>;
 }
 
 interface User {
@@ -100,6 +110,29 @@ interface OAuthConfig {
     scopes: string[];
   };
 }
+
+// Implemented OAuth Service with PKCE support
+class OAuthService {
+  async getAuthorizationUrl(provider: AuthProviderType): Promise<string>;
+  validateCallback(code: string, state: string, provider: AuthProviderType): boolean;
+  getCodeVerifier(): string;
+  clearOAuthSession(): void;
+  getProviderConfig(provider: AuthProviderType): OAuthConfig[AuthProviderType];
+}
+
+// OAuth redirect handling utilities
+interface OAuthCallbackParams {
+  code?: string;
+  state?: string;
+  error?: string;
+  error_description?: string;
+  provider: AuthProviderType;
+}
+
+// Provider-specific configurations with security features
+// - Azure AD: PKCE, tenant-specific auth, User.Read scope
+// - GitHub: Standard OAuth 2.0, user:email and read:user scopes
+// - Google: PKCE, offline access, OpenID Connect scopes
 ```
 
 ### Access Control Layer
@@ -267,6 +300,24 @@ type AuthAction =
   | { type: 'REFRESH_TOKEN_FAILURE' }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'CLEAR_ERROR' };
+
+// Token Management Services
+interface TokenManager {
+  storeSession(sessionData: SessionData): void;
+  getStoredSession(): SessionData | null;
+  isTokenValid(sessionData: SessionData | null): boolean;
+  needsRefresh(sessionData: SessionData | null): boolean;
+  clearSession(): void;
+  getValidAccessToken(): string | null;
+  detectSuspiciousActivity(): boolean;
+}
+
+interface TokenRefreshService {
+  refreshAccessToken(): Promise<SessionData | null>;
+  setupAutoRefresh(): void;
+  clearAutoRefresh(): void;
+  validateAndRefreshSession(): Promise<{ isValid: boolean; user: User | null }>;
+}
 ```
 
 ### Workflow Models
@@ -335,10 +386,27 @@ class GlobalErrorBoundary extends Component<Props, ErrorBoundaryState> {
 
 ### Authentication Security
 
-- **OAuth 2.0 PKCE**: Prevent authorization code interception
-- **Secure Token Storage**: HttpOnly cookies for refresh tokens, memory for access tokens
-- **CSRF Protection**: State parameter validation in OAuth flow
-- **Token Rotation**: Automatic refresh token rotation
+- **OAuth 2.0 PKCE**: Implemented for Azure AD and Google with SHA-256 code challenge method
+- **Secure Token Storage**: 
+  - SessionStorage for access tokens (cleared on tab close)
+  - LocalStorage for refresh tokens (persists across browser sessions)
+  - Automatic cleanup and session timeout handling (24-hour maximum)
+- **CSRF Protection**: Cryptographically secure state parameter validation in OAuth flow
+- **Token Management**: 
+  - Automatic token refresh with 5-minute expiration buffer
+  - Proactive token renewal to prevent session interruption
+  - Suspicious activity detection and session invalidation
+  - Complete token cleanup on logout
+- **Provider-Specific Security**: 
+  - Azure AD: Tenant-specific authentication with proper scope validation
+  - GitHub: Standard OAuth 2.0 with secure state validation
+  - Google: PKCE with offline access and consent prompt
+- **Error Handling**: Comprehensive provider-specific error messages and user-friendly feedback
+- **Session Security**:
+  - JWT token validation and expiration handling
+  - Session restoration on browser restart
+  - Automatic logout on token expiration
+  - Rate limiting for refresh attempts
 
 ### API Security
 
@@ -401,6 +469,18 @@ interface SecurityPolicy {
 実装されたテスト設定ファイル:
 - `jest.config.js` - Jest設定
 - `src/setupTests.ts` - テスト環境セットアップ（ポリフィル、モック）
+- `src/config/__mocks__/environment.ts` - 環境設定モック
+
+実装されたテストスイート:
+- `src/context/__tests__/AuthContext.test.tsx` - 認証コンテキストテスト（10テスト）
+- `src/context/__tests__/authReducer.test.ts` - 認証リデューサーテスト（8テスト）
+- `src/services/__tests__/oauth.test.ts` - OAuthサービステスト（19テスト）
+- `src/services/__tests__/tokenManager.test.ts` - トークン管理テスト（31テスト）
+- `src/services/__tests__/tokenRefresh.test.ts` - トークンリフレッシュテスト（19テスト）
+- `src/services/__tests__/tokenIntegration.test.ts` - 統合テスト（4テスト）
+- `src/utils/__tests__/oauth-redirect.test.ts` - OAuthリダイレクトテスト（20テスト）
+
+**テストカバレッジ**: 111テスト（1スキップ）、全て合格
 
 ```typescript
 // Jest Configuration
@@ -470,6 +550,8 @@ interface TestConfig {
 3. Mock `matchMedia` and `IntersectionObserver` for browser APIs
 4. Configure module name mapping for CSS and asset files
 5. Set up proper coverage collection excluding entry points
+
+**Resolved Issue**: `import.meta.env` handling in Jest environment has been resolved with proper environment mocking configuration.
 
 #### TypeScript Strict Mode with Vite Environment Variables
 

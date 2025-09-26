@@ -35,4 +35,6 @@ export default {
     '<rootDir>/src/**/*.(test|spec).(ts|tsx)',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  // Enable manual mocks
+  clearMocks: true,
 };
