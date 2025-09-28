@@ -60,13 +60,13 @@
   - _Files created: src/services/tokenManager.ts, src/services/tokenRefresh.ts, comprehensive test suites (54 tests)_
 
 - [ ] 3. Create access control and permission system
-- [ ] 3.1 Implement user attribute extraction and processing
+- [x] 3.1 Implement user attribute extraction and processing
   - Create service to extract email and profile attributes from ID providers
   - Implement attribute normalization across different providers
   - Add user profile data validation
   - _Requirements: 2.1, 2.2_
 
-- [ ] 3.2 Build access control service
+- [x] 3.2 Build access control service
   - Implement permission checking logic based on user attributes
   - Create service mapping logic for email domains to backend services
   - Add dynamic permission updates without re-authentication

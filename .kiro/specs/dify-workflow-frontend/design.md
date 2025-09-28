@@ -8,7 +8,7 @@ DifyワークフローをバックエンドAPIとして活用するReact TypeScr
 - ✅ プロジェクト構造とビルド環境（Task 1完了）
 - ✅ 認証システム基盤（Task 2.1-2.3完了）
 - ✅ OAuth統合とトークン管理（セキュリティ機能含む）
-- ⏳ アクセス制御システム（Task 3で実装予定）
+- ✅ アクセス制御システム（Task 3.1-3.2完了）
 - ⏳ Dify API統合（Task 4で実装予定）
 - ⏳ ルーティングとUI（Task 5-6で実装予定）
 
@@ -145,30 +145,114 @@ interface OAuthCallbackParams {
 
 ### Access Control Layer
 
-#### Permission System
+#### User Attribute Service (✅ 実装完了)
 
 ```typescript
-interface Permission {
-  resource: string;
-  actions: string[];
-  conditions?: AccessCondition[];
+// User attribute extraction and processing service
+interface UserAttributeService {
+  extractUserAttributes(rawData: RawUserData, provider: AuthProviderType): User;
+  updateUserAttributes(currentUser: User, newRawData: RawUserData): User;
+  mergeAttributes(baseAttributes: UserAttributes, newAttributes: Partial<UserAttributes>): UserAttributes;
 }
 
-interface AccessCondition {
-  attribute: string;
-  operator: 'equals' | 'contains' | 'matches';
-  value: string | string[];
+// Provider-specific user data interfaces
+interface AzureUserData extends RawUserData {
+  userPrincipalName: string;
+  displayName: string;
+  jobTitle?: string;
+  department?: string;
+  companyName?: string;
 }
 
-interface AccessControlService {
-  checkAccess(user: User, resource: string, action: string): boolean;
-  getAvailableWorkflows(user: User): DifyWorkflow[];
-  updateUserPermissions(
-    userId: string,
-    permissions: Permission[]
-  ): Promise<void>;
+interface GitHubUserData extends RawUserData {
+  login: string;
+  company?: string;
+  public_repos: number;
+  followers: number;
+}
+
+interface GoogleUserData extends RawUserData {
+  sub: string;
+  given_name?: string;
+  family_name?: string;
+  hd?: string; // hosted domain for G Suite users
+}
+
+// Validation and error handling
+class UserAttributeValidationError extends Error {
+  constructor(message: string, field: string, provider: AuthProviderType);
 }
 ```
+
+**実装ファイル**:
+- `src/services/userAttributeService.ts` - メインサービス実装
+- `src/services/__tests__/userAttributeService.test.ts` - 19の包括的テスト
+- `src/examples/userAttributeIntegration.ts` - 統合例とアクセス制御デモ
+- `src/examples/__tests__/userAttributeIntegration.test.ts` - 11の統合テスト
+
+**主要機能**:
+- Azure AD、GitHub、Googleからの属性抽出
+- プロバイダー間での属性正規化
+- 包括的なデータ検証とエラーハンドリング
+- ドメイン抽出とロールベースアクセス制御の基盤
+
+#### Permission System (✅ Task 3.2完了)
+
+```typescript
+// Access control service interfaces (実装済み)
+interface AccessControlService {
+  checkAccess(user: User, resource: string, action: string): AccessResult;
+  getAvailableWorkflows(user: User): DifyWorkflow[];
+  updateUserPermissions(user: User): User;
+  getAvailableServices(user: User): string[];
+  canAccessService(user: User, serviceName: string): boolean;
+  updateDomainMapping(mapping: DomainServiceMapping): void;
+  updateWorkflow(workflow: DifyWorkflow): void;
+}
+
+interface AccessResult {
+  allowed: boolean;
+  reason?: string;
+  requiredPermissions?: string[];
+  missingConditions?: AccessCondition[];
+}
+
+// Domain-based service mapping (実装済み)
+interface DomainServiceMapping {
+  domain: string;
+  allowedServices: string[];
+  defaultPermissions: Permission[];
+  roleBasedPermissions?: Record<string, Permission[]>;
+}
+
+// Access control configuration (実装済み)
+interface AccessControlConfig {
+  domainMappings: DomainServiceMapping[];
+  globalPermissions: Permission[];
+  workflows: DifyWorkflow[];
+}
+```
+
+**実装ファイル**:
+- `src/services/accessControlService.ts` - メインサービス実装
+- `src/services/__tests__/accessControlService.test.ts` - 34の包括的テスト
+- `src/examples/accessControlIntegration.ts` - 統合デモとユースケース
+- `src/examples/__tests__/accessControlIntegration.test.ts` - 14の統合テスト
+
+**主要機能**:
+- **権限チェック**: リソースとアクションに基づく細かい権限制御
+- **条件評価**: equals、contains、matchesオペレーターによる属性ベース制御
+- **ドメインマッピング**: メールドメインからサービスへの自動マッピング
+- **ロールベース権限**: ユーザーロールに基づく動的権限割り当て
+- **ワークフロー制御**: Difyワークフローへのアクセス制御
+- **動的更新**: 再認証なしでの権限更新
+- **権限統合**: 複数ソースからの権限の重複排除と統合
+
+**セキュリティ機能**:
+- ワイルドカード権限サポート（`*`リソース、`*`アクション）
+- ネストした属性パスでの条件評価（`attributes.department`など）
+- 包括的なエラーハンドリングと理由の提供
+- 設定の動的更新とホットリロード
 
 ### Dify Integration Layer
 
@@ -487,6 +571,10 @@ interface SecurityPolicy {
 - `src/services/__tests__/tokenRefresh.test.ts` - トークンリフレッシュテスト（19テスト）
 - `src/services/__tests__/tokenIntegration.test.ts` - 統合テスト（4テスト）
 - `src/utils/__tests__/oauth-redirect.test.ts` - OAuthリダイレクトテスト（20テスト）
+- `src/services/__tests__/userAttributeService.test.ts` - ユーザー属性サービステスト（19テスト）
+- `src/examples/__tests__/userAttributeIntegration.test.ts` - 属性統合テスト（11テスト）
+- `src/services/__tests__/accessControlService.test.ts` - アクセス制御サービステスト（34テスト）
+- `src/examples/__tests__/accessControlIntegration.test.ts` - アクセス制御統合テスト（14テスト）
 
 実装済み設定ファイル:
 - `jest.config.js` - Jest設定（TypeScript、jsdom環境）
@@ -499,7 +587,9 @@ interface SecurityPolicy {
 - `react-router.config.ts` - React Router v7設定（SPA mode）
 - 環境設定ファイル: `.env`, `.env.development`, `.env.production`, `.env.staging`
 
-**テストカバレッジ**: 111テスト（1スキップ）、全て合格
+**テストカバレッジ**: 189テスト（1スキップ）、全て合格
+- 新規追加: ユーザー属性サービス（19テスト）+ 統合例（11テスト）= 30テスト追加
+- 新規追加: アクセス制御サービス（34テスト）+ 統合例（14テスト）= 48テスト追加
 
 ```typescript
 // Jest Configuration
