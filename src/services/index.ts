@@ -19,3 +19,7 @@ export {
   type AccessControlConfig,
   type AccessResult,
 } from './accessControlService';
+export { 
+  DifyApiClient, 
+  difyApiClient 
+} from './difyApiClient';

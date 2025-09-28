@@ -12,3 +12,27 @@ export type {
   AuthState,
   AuthAction,
 } from './auth';
+
+// Export all Dify API types
+export type {
+  JSONSchema,
+  JSONSchemaProperty,
+  DifyWorkflow,
+  WorkflowExecutionStatus,
+  WorkflowInput,
+  WorkflowResult,
+  WorkflowExecution,
+  WorkflowExecutionMetadata,
+  DifyApiRequest,
+  DifyApiResponse,
+  DifyApiError,
+  ExecuteWorkflowRequest,
+  ExecuteWorkflowResponse,
+  GetWorkflowsRequest,
+  GetWorkflowsResponse,
+  GetWorkflowStatusRequest,
+  GetWorkflowStatusResponse,
+  DifyApiConfig,
+  RateLimitInfo,
+  SignedRequest,
+} from './dify';

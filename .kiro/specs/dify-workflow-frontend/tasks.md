@@ -75,7 +75,7 @@
   - _Risk: 複雑なアクセス制御ロジックでのバグ (Medium/High) - 単体テスト強化とコードレビュー厳格化で軽減_
 
 - [ ] 4. Develop Dify API integration layer
-- [ ] 4.1 Create Dify API client service
+- [x] 4.1 Create Dify API client service
   - Implement HTTP client with proper error handling and retries
   - Create typed interfaces for Dify workflow requests and responses
   - Add API authentication and request signing
