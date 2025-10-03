@@ -1,5 +1,7 @@
-import React from 'react';
+import { startTransition } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { HydratedRouter } from 'react-router/dom';
 
-hydrateRoot(document, <HydratedRouter />);
+startTransition(() => {
+  hydrateRoot(document, <HydratedRouter />);
+});

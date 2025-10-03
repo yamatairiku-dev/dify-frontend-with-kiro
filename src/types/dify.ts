@@ -18,7 +18,7 @@ export interface JSONSchemaProperty {
   minLength?: number;
   maxLength?: number;
   pattern?: string;
-  items?: JSONSchemaProperty;
+  items?: JSONSchema; // Changed to JSONSchema to allow nested schemas with required fields
   properties?: Record<string, JSONSchemaProperty>;
 }
 
@@ -162,4 +162,51 @@ export interface SignedRequest extends DifyApiRequest {
   signature?: string;
   timestamp?: number;
   nonce?: string;
+}
+
+// Workflow execution result types (from workflowExecutionService)
+export interface ProcessedWorkflowResult {
+  executionId: string;
+  workflowId: string;
+  status: WorkflowExecutionStatus;
+  result?: FormattedResult;
+  error?: any; // WorkflowExecutionError
+  metadata: ResultMetadata;
+}
+
+export interface FormattedResult {
+  data: any;
+  displayFormat: 'text' | 'json' | 'table' | 'chart' | 'image' | 'html';
+  summary?: string;
+  downloadUrl?: string;
+}
+
+export interface ResultMetadata {
+  executionTime: number;
+  startedAt: Date;
+  completedAt?: Date;
+  inputSize: number;
+  outputSize?: number;
+  steps?: ExecutionStep[];
+}
+
+export interface ExecutionStep {
+  name: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  startedAt?: Date;
+  completedAt?: Date;
+  duration?: number;
+  output?: any;
+}
+
+// Progress tracking types (from workflowExecutionService)
+export interface WorkflowProgress {
+  executionId: string;
+  workflowId: string;
+  status: WorkflowExecutionStatus;
+  progress: number; // 0-100
+  currentStep?: string;
+  estimatedTimeRemaining?: number;
+  startedAt: Date;
+  lastUpdated: Date;
 }

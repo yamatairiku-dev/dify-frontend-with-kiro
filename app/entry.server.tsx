@@ -1,4 +1,3 @@
-import React from 'react';
 import type { EntryContext } from 'react-router';
 import { ServerRouter } from 'react-router';
 import { renderToString } from 'react-dom/server';

@@ -23,3 +23,18 @@ export {
   DifyApiClient, 
   difyApiClient 
 } from './difyApiClient';
+export {
+  WorkflowExecutionService,
+  workflowExecutionService,
+  WorkflowExecutionError,
+  validateWorkflowInput,
+  formatWorkflowResult,
+  type ValidationResult,
+  type ValidationError,
+  type WorkflowProgress,
+  type WorkflowExecutionOptions,
+  type ProcessedWorkflowResult,
+  type FormattedResult,
+  type ResultMetadata,
+  type ExecutionStep,
+} from './workflowExecutionService';

@@ -9,9 +9,11 @@ DifyワークフローをバックエンドAPIとして活用するReact TypeScr
 - ✅ 認証システム基盤（Task 2.1-2.3完了）
 - ✅ OAuth統合とトークン管理（セキュリティ機能含む）
 - ✅ アクセス制御システム（Task 3.1-3.2完了）
-- ✅ Dify API統合（Task 4.1完了 - APIクライアント、エラーハンドリング、セキュリティ）
-- ⏳ ワークフロー実行システム（Task 4.2で実装予定）
-- ⏳ ルーティングとUI（Task 5-6で実装予定）
+- ✅ Dify API統合（Task 4.1-4.2完了 - APIクライアント、ワークフロー実行、エラーハンドリング、セキュリティ）
+- ✅ React Router v7基盤（Task 5.1完了 - ファイルベースルーティング、認証統合）
+- ✅ 保護ルートシステム（Task 5.2完了 - 認証フック、権限ベース保護、エラーバウンダリ、ナビゲーション、レイアウト）
+- ✅ データローディングパターン（Task 5.3完了 - SPA mode専用フック、並列データ読み込み、フォーム管理）
+- ✅ UIコンポーネント（Task 6.1, 6.3完了 - 認証UI、ナビゲーション、レイアウト）
 
 ## Architecture
 
@@ -382,7 +384,140 @@ export async function executeWorkflowWithPermissions(
 
 ### UI Components
 
-#### React Router v7 Configuration
+#### React Router v7 Configuration (✅ Task 5.1完了)
+
+#### Protected Route System (✅ Task 5.2完了)
+
+#### SPA Data Loading Patterns (✅ Task 5.3完了)
+
+**実装ファイル構造**:
+- `src/hooks/useWorkflowData.ts` - ワークフローデータ取得フック
+- `src/hooks/useWorkflowForm.ts` - フォーム管理とバリデーション
+- `src/hooks/useAsyncOperation.ts` - 非同期操作管理
+- `src/hooks/index.ts` - フックエクスポート
+- 包括的テストスイート（49テスト）
+
+```typescript
+// Workflow Data Loading Hooks (実装済み)
+export const useWorkflowList = (request?: GetWorkflowsRequest): WorkflowListState => {
+  // Fetches workflow list with permission filtering
+  // Includes loading states, error handling, and refetch functionality
+};
+
+export const useWorkflow = (workflowId: string): WorkflowState => {
+  // Fetches single workflow with access control
+  // Includes permission checking and metadata loading
+};
+
+export const useWorkflowExecution = (workflowId: string): WorkflowExecutionState => {
+  // Handles workflow execution with progress tracking
+  // Includes cancellation, progress monitoring, and result handling
+};
+
+export const useParallelWorkflowData = (workflowId: string) => {
+  // Loads multiple data sources concurrently
+  // Combines workflow metadata, list, and execution state
+};
+
+// Form Management Hooks (実装済み)
+export const useWorkflowForm = (
+  workflow: DifyWorkflow | null,
+  initialValues?: WorkflowInput
+): UseWorkflowFormReturn => {
+  // Comprehensive form management with JSON schema validation
+  // Auto-generates form fields from workflow input schema
+  // Includes real-time validation, error handling, and submission
+};
+
+// Async Operation Hooks (実装済み)
+export const useAsyncOperation = <T>(
+  asyncFunction: (...args: any[]) => Promise<T>,
+  options?: AsyncOperationOptions
+): UseAsyncOperationReturn<T> => {
+  // Single async operation with loading states and error handling
+  // Includes cancellation, retry logic, and timeout handling
+};
+
+export const useParallelAsyncOperations = <T>(
+  operations: Array<{
+    key: string;
+    asyncFunction: (...args: any[]) => Promise<T>;
+    options?: AsyncOperationOptions;
+  }>
+) => {
+  // Execute multiple operations concurrently
+  // Includes individual operation state tracking and batch operations
+};
+
+export const useSequentialAsyncOperations = <T>(
+  operations: Array<{
+    key: string;
+    asyncFunction: (...args: any[]) => Promise<T>;
+    options?: AsyncOperationOptions;
+  }>
+) => {
+  // Execute operations in sequence with progress tracking
+  // Includes step-by-step progress and error handling
+};
+```
+
+**主要実装機能**:
+- **SPA Mode Data Loading**: React Router v7のSPAモード専用パターン（ローダー不使用）
+- **Permission-Based Filtering**: ユーザー権限に基づくデータフィルタリング
+- **Parallel Data Loading**: 複数データソースの並列読み込み
+- **Form Auto-Generation**: JSONスキーマからの自動フォーム生成
+- **Real-time Validation**: リアルタイムバリデーションとエラー表示
+- **Progress Tracking**: ワークフロー実行の進捗追跡
+- **Cancellation Support**: 非同期操作のキャンセル機能
+- **Error Recovery**: 包括的エラーハンドリングと再試行機能
+
+**統合例**:
+```typescript
+// Updated route components using new hooks
+// app/routes/workflows._index.tsx - Uses useWorkflowList
+// app/routes/workflows.$id.tsx - Uses useParallelWorkflowData and useWorkflowForm
+
+// Example usage in workflow execution page
+export default function WorkflowExecution(): React.ReactElement {
+  const params = useParams();
+  const workflowId = params['id'] as string;
+
+  // Parallel data loading
+  const {
+    workflow,
+    execution,
+    isLoading,
+    error,
+    isReady
+  } = useParallelWorkflowData(workflowId);
+
+  // Form management
+  const {
+    values,
+    errors,
+    isValid,
+    isSubmitting,
+    fields,
+    setValue,
+    handleSubmit,
+    reset
+  } = useWorkflowForm(workflow.data);
+
+  // Form submission with execution
+  const handleExecute = async () => {
+    await handleSubmit(async (formValues) => {
+      return await execution.execute(formValues);
+    });
+  };
+
+  // Render form with auto-generated fields and execution results
+}
+```
+
+**テストカバレッジ**: 49の包括的テスト
+- `useWorkflowData`: データ取得、権限フィルタリング、並列読み込み
+- `useWorkflowForm`: フォーム生成、バリデーション、送信処理
+- `useAsyncOperation`: 非同期操作、エラーハンドリング、キャンセレーション
 
 ```typescript
 // react-router.config.ts
@@ -415,36 +550,322 @@ export default defineConfig({
   },
 });
 
-// File-based routing structure
-// app/root.tsx - Root layout component
-// app/entry.client.tsx - Client entry point
-// app/entry.server.tsx - Server entry point (for SSR support)
-// app/routes.ts - Route configuration
-// app/routes/_index.tsx - Dashboard (protected)
-// app/routes/login.tsx - Login page
-// app/routes/callback.$provider.tsx - OAuth callback
-// app/routes/workflows._index.tsx - Workflow list (protected)
-// app/routes/workflows.$id.tsx - Workflow execution (protected)
+// 実装済みファイルベースルーティング構造
+// app/root.tsx - Root layout component with AuthProvider and ErrorBoundary
+// app/entry.client.tsx - Client entry point with hydrateRoot
+// app/entry.server.tsx - Server entry point (for future SSR support)
+// app/routes.ts - Route configuration with all application routes
+// app/routes/_index.tsx - Dashboard (protected with useAuth)
+// app/routes/login.tsx - Login page (redirects if authenticated)
+// app/routes/callback.$provider.tsx - OAuth callback with completeLogin
+// app/routes/workflows._index.tsx - Workflow list (protected with useAuth)
+// app/routes/workflows.$id.tsx - Workflow execution (protected with permissions)
+// app/routes/access-denied.tsx - Access denied page
 
-// Route configuration with loaders and actions
-interface RouteConfig {
-  loader?: (args: LoaderFunctionArgs) => Promise<any>;
-  action?: (args: ActionFunctionArgs) => Promise<any>;
-  Component: React.ComponentType;
-  ErrorBoundary?: React.ComponentType;
+// SPA Mode Authentication Pattern (実装済み)
+// Note: SPA mode (ssr: false) does not support loaders/actions
+// Authentication is handled using React hooks instead
+
+// Example protected route pattern (実装済み)
+export default function ProtectedRoute(): React.ReactElement {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated || !user) {
+    return <div>Loading...</div>;
+  }
+
+  // Render protected content
+  return <div>Protected content for {user.name}</div>;
 }
 
-// Example route with authentication check
-export const loader: LoaderFunction = async ({ request }) => {
-  const user = await requireAuth(request);
-  return { user };
+// Permission-based route protection (実装済み)
+export default function PermissionProtectedRoute(): React.ReactElement {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    if (user) {
+      const hasPermission = user.permissions.some(permission => {
+        const resourceMatch = permission.resource === 'workflow' || permission.resource === '*';
+        const actionMatch = permission.actions.includes('execute') || permission.actions.includes('*');
+        return resourceMatch && actionMatch;
+      });
+
+      if (!hasPermission) {
+        navigate('/access-denied', { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  // Render content if authenticated and authorized
+}
+```
+
+#### Navigation and Layout System (✅ Task 5.2完了)
+
+**実装ファイル構造**:
+- `src/components/Navigation.tsx` - 権限ベースナビゲーションシステム
+- `src/components/Layout.tsx` - レスポンシブレイアウトコンポーネント
+- `src/hooks/useProtectedRoute.ts` - 包括的認証・権限フック
+- `src/components/ProtectedRoute.tsx` - 保護ルートコンポーネント
+- `src/components/RouteErrorBoundary.tsx` - ルートレベルエラーバウンダリ
+
+```typescript
+// Navigation System (実装済み)
+interface NavigationProps {
+  variant?: 'horizontal' | 'vertical';
+  showUserInfo?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export const Navigation: React.FC<NavigationProps> = ({
+  variant = 'horizontal',
+  showUserInfo = true,
+  className,
+  style
+}) => {
+  const { user, logout, isAuthenticated } = useAuth();
+  const location = useLocation();
+  
+  // Permission-based navigation filtering
+  const canViewWorkflows = usePermissionCheck('workflow', 'read');
+  const canManageWorkflows = usePermissionCheck('workflow', 'manage');
+  const canAccessAdmin = usePermissionCheck('admin', 'access');
+  
+  // Dynamic navigation items based on user permissions
+  const navigationItems: NavigationItem[] = [
+    { path: '/', label: 'Dashboard', icon: '🏠' },
+    { 
+      path: '/workflows', 
+      label: 'Workflows', 
+      icon: '⚙️',
+      requiredPermission: { resource: 'workflow', action: 'read' }
+    }
+  ];
+
+  // Filter items based on permissions and render navigation
 };
 
-// Virtual module type declaration required
-declare module 'virtual:react-router/routes' {
-  import type { RouteObject } from 'react-router';
-  const routes: RouteObject[];
-  export default routes;
+// Layout System (実装済み)
+interface LayoutProps {
+  children: React.ReactNode;
+  title?: string;
+  breadcrumbs?: Array<{ label: string; path?: string }>;
+  showNavigation?: boolean;
+  navigationVariant?: 'horizontal' | 'vertical';
+  routeName?: string;
+}
+
+export const Layout: React.FC<LayoutProps> = ({
+  children,
+  title,
+  breadcrumbs,
+  showNavigation = true,
+  navigationVariant = 'horizontal',
+  routeName
+}) => {
+  // Mobile-responsive layout with error boundaries
+  // Integrated navigation and breadcrumb system
+  // Permission-based navigation filtering
+};
+
+// Layout Variants (実装済み)
+export const ProtectedLayout: React.FC<LayoutProps> = (props) => {
+  // Requires authentication, shows loading/login states
+};
+
+export const PublicLayout: React.FC<LayoutProps> = (props) => {
+  // For public pages (login, access denied)
+};
+
+export const DashboardLayout: React.FC<LayoutProps> = (props) => {
+  // Vertical navigation for dashboard pages
+};
+
+export const FullWidthLayout: React.FC<LayoutProps> = (props) => {
+  // Full-width layout for workflow execution
+};
+
+// Breadcrumb Navigation (実装済み)
+interface BreadcrumbProps {
+  items: Array<{ label: string; path?: string }>;
+  separator?: string;
+}
+
+export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, separator = '/' }) => {
+  // Accessible breadcrumb navigation with proper ARIA labels
+};
+
+// Mobile Navigation (実装済み)
+interface MobileNavigationProps {
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}
+
+export const MobileNavigation: React.FC<MobileNavigationProps> = ({
+  isOpen,
+  onToggle,
+  children
+}) => {
+  // Mobile-responsive navigation with overlay and toggle
+};
+```
+
+#### Protected Route Hooks (✅ Task 5.2完了)
+
+```typescript
+// Comprehensive authentication and permission hooks (実装済み)
+
+// Basic authentication requirement
+export const useAuthRequired = (): { isLoading: boolean; isAuthenticated: boolean } => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  return { isLoading, isAuthenticated };
+};
+
+// Permission-based route protection
+export const usePermissionRequired = (options: {
+  resource: string;
+  action: string;
+  redirectTo?: string;
+  allowWildcard?: boolean;
+}): { 
+  isLoading: boolean; 
+  isAuthenticated: boolean; 
+  hasPermission: boolean;
+  user: any;
+} => {
+  // Comprehensive permission checking with redirect logic
+};
+
+// Multiple permission options (user needs any of these)
+export const useAnyPermissionRequired = (
+  permissionOptions: Array<{
+    resource: string;
+    action: string;
+    allowWildcard?: boolean;
+  }>,
+  redirectTo?: string
+): {
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  hasAnyPermission: boolean;
+  user: any;
+} => {
+  // Multiple permission checking logic
+};
+
+// Non-redirecting permission checks for conditional rendering
+export const usePermissionCheck = (
+  resource: string, 
+  action: string, 
+  allowWildcard?: boolean
+): boolean => {
+  // Permission checking without redirect for UI elements
+};
+
+// Batch permission checking
+export const useMultiplePermissionCheck = (
+  permissions: Array<{ resource: string; action: string; allowWildcard?: boolean }>
+): Record<string, boolean> => {
+  // Efficient batch permission checking
+};
+
+// Role-based access control
+export const useRoleRequired = (
+  requiredRoles: string[],
+  redirectTo?: string
+): {
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  hasRequiredRole: boolean;
+  user: any;
+} => {
+  // Role-based route protection
+};
+```
+
+#### Route Error Boundaries (✅ Task 5.2完了)
+
+```typescript
+// Comprehensive error boundary system (実装済み)
+interface RouteErrorBoundaryProps {
+  children: ReactNode;
+  fallback?: React.ComponentType<{ error: ErrorDetails; retry: () => void }>;
+  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  routeName?: string;
+}
+
+export class RouteErrorBoundary extends Component<RouteErrorBoundaryProps, RouteErrorBoundaryState> {
+  // Error boundary with retry functionality
+  // Development vs production error display
+  // Error logging and reporting integration
+  // Custom fallback components support
+}
+
+// Higher-order component for easy integration
+export const withRouteErrorBoundary = <P extends object>(
+  Component: React.ComponentType<P>,
+  routeName?: string,
+  customFallback?: React.ComponentType<{ error: ErrorDetails; retry: () => void }>
+) => {
+  // HOC wrapper for route error boundaries
+};
+
+// Hook for programmatic error triggering
+export const useErrorBoundary = () => {
+  // Programmatic error boundary triggering for async operations
+};
+```
+
+#### Enhanced Access Denied Page (✅ Task 5.2完了)
+
+```typescript
+// Enhanced access denied page (実装済み)
+export default function AccessDenied(): React.ReactElement {
+  const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = location.state as LocationState || {};
+
+  const handleGoBack = (): void => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
+  return (
+    <PublicLayout title="Access Denied" routeName="Access Denied">
+      {/* Detailed permission requirements display */}
+      {/* User's current permissions and roles */}
+      {/* Contextual error messages with state information */}
+      {/* Multiple navigation options (Go Back, Dashboard, Workflows, Login) */}
+      {/* Enhanced visual design and user experience */}
+    </PublicLayout>
+  );
 }
 ```
 
@@ -685,10 +1106,12 @@ interface SecurityPolicy {
 - `react-router.config.ts` - React Router v7設定（SPA mode）
 - 環境設定ファイル: `.env`, `.env.development`, `.env.production`, `.env.staging`
 
-**テストカバレッジ**: 255テスト（1スキップ）、246テスト合格（96.5%成功率）
+**テストカバレッジ**: 400テスト、394テスト合格（98.5%成功率）
 - 新規追加: ユーザー属性サービス（19テスト）+ 統合例（11テスト）= 30テスト追加
 - 新規追加: アクセス制御サービス（34テスト）+ 統合例（14テスト）= 48テスト追加
 - 新規追加: Dify APIクライアント（29テスト）+ 統合例（50テスト）= 79テスト追加
+- 新規追加: 保護ルートシステム（96テスト）= Navigation（16テスト）+ Layout（16テスト）+ ProtectedRoute（15テスト）+ RouteErrorBoundary（13テスト）+ useProtectedRoute（19テスト）+ 統合例（17テスト）
+- 新規追加: SPAデータローディング（49テスト）= useWorkflowData（16テスト）+ useWorkflowForm（16テスト）+ useAsyncOperation（17テスト）
 
 ```typescript
 // Jest Configuration

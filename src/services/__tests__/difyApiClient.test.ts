@@ -51,7 +51,7 @@ describe('DifyApiClient', () => {
           'x-api-version': '1.0',
           ...options.headers,
         };
-        return defaultHeaders[key] || null;
+        return (defaultHeaders as Record<string, string>)[key] || null;
       }),
     },
     json: jest.fn().mockResolvedValue(options.data ?? { success: true }),

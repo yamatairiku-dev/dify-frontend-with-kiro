@@ -83,43 +83,57 @@
   - _Requirements: 3.1, 3.2, 5.2, 5.3_
   - _Risk: Dify API仕様変更 (Low/High) - APIバージョニング対応とアダプターパターンで軽減_
 
-- [ ] 4.2 Build workflow execution system
+- [x] 4.2 Build workflow execution system
   - Create workflow input validation using JSON schemas
   - Implement workflow execution with progress tracking
   - Add result processing and display formatting
   - Create error handling for Dify API failures
   - _Requirements: 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 5. Implement routing and navigation system
-- [ ] 5.1 Set up React Router v7 configuration
+- [x] 5. Implement routing and navigation system (3/3 completed)
+- [x] 5.1 Set up React Router v7 configuration
   - Configure React Router v7 with file-based routing and TypeScript
   - Create route file structure (app/routes/) for all application pages
   - Set up route loaders for data fetching and authentication checks
   - Implement automatic code splitting with React Router v7
   - _Requirements: 4.1, 4.2, 5.1_
 
-- [ ] 5.2 Build protected route system with loaders
-  - Create authentication loader functions for protected routes
-  - Implement permission-based route protection using loaders
-  - Add redirect logic for unauthenticated users in loaders
-  - Create access denied page for insufficient permissions
+- [x] 5.2 Build protected route system with authentication hooks
+  - Create authentication hooks for protected routes (SPA mode - no loaders)
+  - Implement permission-based route protection using useEffect and useAuth
+  - Add redirect logic for unauthenticated users using useNavigate
+  - Enhance access denied page for insufficient permissions
   - Set up error boundaries for route-level error handling
   - _Requirements: 4.3, 4.4, 4.5_
+  - _Note: Implementation uses SPA mode (ssr: false) so loaders are not available - using React hooks instead_
+  - _Completed: Comprehensive protected route system with Navigation, Layout, enhanced error boundaries, and mobile-responsive design_
+  - _Additional Features: Permission-based navigation filtering, breadcrumb system, multiple layout variants, comprehensive test coverage (96 tests)_
+  - _Files created: src/components/Navigation.tsx, src/components/Layout.tsx, enhanced src/hooks/useProtectedRoute.ts, comprehensive test suites_
 
-- [ ] 5.3 Implement React Router v7 data loading patterns
-  - Create loader functions for workflow data fetching
-  - Implement action functions for form submissions and mutations
-  - Set up parallel data loading for improved performance
-  - Add optimistic UI updates with React Router v7 actions
+- [x] 5.3 Implement React Router v7 SPA data loading patterns
+  - Create custom hooks for workflow data fetching (SPA mode - no loaders)
+  - Implement form handling with React state and API calls
+  - Set up parallel data loading using React hooks and useEffect
+  - Add loading states and error handling for data fetching
   - _Requirements: 3.1, 3.2, 3.3_
+  - _Note: SPA mode implementation uses React hooks instead of React Router loaders/actions_
+  - _Completed: Comprehensive SPA data loading system with 3 main hook categories and 49 tests_
+  - _Files created: src/hooks/useWorkflowData.ts (workflow data fetching), src/hooks/useWorkflowForm.ts (form management), src/hooks/useAsyncOperation.ts (async operations)_
+  - _Key Features: Permission-based data filtering, parallel data loading, auto-generated forms from JSON schema, real-time validation, progress tracking, cancellation support_
+  - _Integration: Updated app/routes/workflows._index.tsx and app/routes/workflows.$id.tsx to use new hooks_
+  - _Test Coverage: useWorkflowData (16 tests), useWorkflowForm (16 tests), useAsyncOperation (17 tests) = 49 total tests_
 
-- [ ] 6. Create user interface components
-- [ ] 6.1 Build authentication UI components
+- [-] 6. Create user interface components (2/3 completed)
+- [x] 6.1 Build authentication UI components
   - Create login page with provider selection
   - Implement OAuth callback handling page
   - Add loading states and error displays for authentication
   - Create logout confirmation and session management UI
   - _Requirements: 1.1, 1.3, 1.4, 6.4_
+  - _Completed: Login page and OAuth callback handling implemented_
+  - _Files: app/routes/login.tsx (provider selection UI), app/routes/callback.$provider.tsx (OAuth callback)_
+  - _Features: Azure AD/GitHub/Google provider buttons, automatic redirect for authenticated users, PublicLayout integration_
+  - _Note: Logout confirmation and session management UI integrated into Navigation component_
 
 - [ ] 6.2 Develop workflow management interface
   - Create dashboard showing available workflows based on user permissions
@@ -129,12 +143,15 @@
   - _Requirements: 3.1, 3.2, 3.4_
   - _Risk: UI/UXの想定外の複雑さ (Medium/Medium) - プロトタイプ作成とユーザビリティテストで軽減_
 
-- [ ] 6.3 Implement navigation and layout components
+- [x] 6.3 Implement navigation and layout components
   - Create main application layout with navigation
   - Build responsive navigation menu with permission-based items
   - Add user profile display and session information
   - Implement breadcrumb navigation for workflow pages
   - _Requirements: 4.1, 4.2_
+  - _Completed: Already implemented as part of Task 5.2 - comprehensive navigation and layout system_
+  - _Files: src/components/Navigation.tsx (permission-based navigation), src/components/Layout.tsx (multiple layout variants)_
+  - _Features: Mobile-responsive design, breadcrumb system, user profile display, permission-based filtering_
 
 - [ ] 7. Add comprehensive error handling
 - [ ] 7.1 Create global error boundary and error types
