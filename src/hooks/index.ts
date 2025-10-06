@@ -28,3 +28,13 @@ export {
   useParallelAsyncOperations,
   useSequentialAsyncOperations
 } from './useAsyncOperation';
+
+// Error handling hooks
+export {
+  useAuthenticationErrorHandling,
+  useAuthorizationErrorHandling,
+  useNetworkErrorHandling,
+  useDifyApiErrorHandling,
+  useUnifiedErrorHandling,
+  useAsyncWithErrorHandling,
+} from './useErrorHandling';

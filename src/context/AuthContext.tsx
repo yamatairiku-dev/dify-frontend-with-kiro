@@ -6,7 +6,7 @@ import { TokenManager } from '../services/tokenManager';
 import { TokenRefreshService } from '../services/tokenRefresh';
 
 // Create the authentication context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Custom hook to use the auth context
 export const useAuth = (): AuthContextType => {

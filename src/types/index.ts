@@ -36,3 +36,27 @@ export type {
   RateLimitInfo,
   SignedRequest,
 } from './dify';
+
+// Export all error types
+export type {
+  AppError,
+  ErrorType,
+  ErrorSeverity,
+  AuthenticationError,
+  AuthorizationError,
+  NetworkError,
+  ValidationError,
+  DifyApiError as DifyApiErrorType,
+  RouteError,
+  ComponentError,
+  SpecificError,
+  ErrorContext,
+  ErrorLoggingConfig,
+  ErrorRecoveryAction,
+  ErrorDisplayOptions,
+  ErrorBoundaryState,
+  ErrorHandler,
+  ErrorRecoveryFunction,
+  ErrorBoundaryProps,
+  ErrorUtils,
+} from './error';

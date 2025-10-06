@@ -13,6 +13,32 @@ export {
   useErrorBoundary
 } from './RouteErrorBoundary';
 
+// Global error handling components
+export {
+  GlobalErrorBoundary,
+  useErrorBoundary as useGlobalErrorBoundary,
+  withGlobalErrorBoundary,
+  AsyncErrorBoundary,
+  RouteErrorBoundary as GlobalRouteErrorBoundary
+} from './GlobalErrorBoundary';
+
+// Error display components
+export {
+  ErrorDisplay,
+  CompactErrorDisplay,
+  ErrorToast
+} from './ErrorDisplay';
+
+// Enhanced error display components
+export {
+  EnhancedErrorDisplay,
+  AuthenticationErrorDisplay,
+  AuthorizationErrorDisplay,
+  NetworkErrorDisplay,
+  DifyApiErrorDisplay,
+  ErrorNotificationBanner,
+} from './EnhancedErrorDisplay';
+
 // Navigation components
 export {
   Navigation,

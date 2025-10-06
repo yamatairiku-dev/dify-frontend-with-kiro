@@ -38,3 +38,25 @@ export {
   type ResultMetadata,
   type ExecutionStep,
 } from './workflowExecutionService';
+export {
+  ErrorLoggingService,
+  errorLoggingService,
+  logError,
+  configureErrorLogging,
+  getStoredErrors,
+  clearStoredErrors,
+} from './errorLoggingService';
+
+// Specific error handlers
+export {
+  AuthenticationErrorHandler,
+  AuthorizationErrorHandler,
+  NetworkErrorHandler,
+  DifyApiErrorHandler,
+  UnifiedErrorHandler,
+  handleAuthenticationError,
+  handleAuthorizationError,
+  handleNetworkError,
+  handleDifyApiError,
+  handleError,
+} from './specificErrorHandlers';
