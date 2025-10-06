@@ -28,3 +28,8 @@ export {
   DashboardLayout,
   FullWidthLayout
 } from './Layout';
+
+// Workflow management components
+export { WorkflowList } from './WorkflowList';
+export { WorkflowDashboard } from './WorkflowDashboard';
+export { WorkflowExecutionResults } from './WorkflowExecutionResults';

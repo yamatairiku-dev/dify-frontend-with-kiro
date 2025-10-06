@@ -6,7 +6,7 @@ import { useAuth } from '../../src/context/AuthContext';
 import { usePermissionRequired } from '../../src/hooks/useProtectedRoute';
 import { useParallelWorkflowData } from '../../src/hooks/useWorkflowData';
 import { useWorkflowForm } from '../../src/hooks/useWorkflowForm';
-import { FullWidthLayout } from '../../src/components/Layout';
+import { FullWidthLayout, WorkflowExecutionResults } from '../../src/components';
 
 export const meta: MetaFunction = ({ params }) => [
   { title: `Workflow ${params['id']} - Dify Workflow Frontend` },
@@ -430,65 +430,14 @@ function WorkflowExecutionContent(): React.ReactElement {
         }}>
           <h2>Workflow Output</h2>
           
-          {execution.isExecuting && (
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                border: '4px solid #f3f3f3',
-                borderTop: '4px solid #0078d4',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-                margin: '0 auto 1rem'
-              }}></div>
-              <p>Executing workflow... ({execution.progress.toFixed(0)}%)</p>
-            </div>
-          )}
-          
-          {execution.error && (
-            <div style={{
-              padding: '1rem',
-              backgroundColor: '#ffe0e0',
-              border: '1px solid #ff6b6b',
-              borderRadius: '4px',
-              color: '#d63031'
-            }}>
-              <strong>Error:</strong> {execution.error}
-            </div>
-          )}
-          
-          {execution.result && (
-            <div>
-              <div style={{
-                padding: '1rem',
-                backgroundColor: '#e0ffe0',
-                border: '1px solid #00b894',
-                borderRadius: '4px',
-                marginBottom: '1rem'
-              }}>
-                <strong>Status:</strong> {execution.result.status}
-                {execution.result.duration && (
-                  <span> (Duration: {execution.result.duration}s)</span>
-                )}
-                <br />
-                <strong>Execution ID:</strong> {execution.result.executionId}
-              </div>
-              
-              {execution.result.result && (
-                <div style={{
-                  padding: '1rem',
-                  backgroundColor: '#f0f0f0',
-                  borderRadius: '4px',
-                  fontFamily: 'monospace',
-                  fontSize: '0.9rem'
-                }}>
-                  <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
-                    {JSON.stringify(execution.result.result, null, 2)}
-                  </pre>
-                </div>
-              )}
-            </div>
-          )}
+          <WorkflowExecutionResults
+            result={execution.result}
+            isExecuting={execution.isExecuting}
+            progress={execution.progress}
+            error={execution.error}
+            onRetry={handleExecute}
+            onClear={execution.reset}
+          />
           
           {submitResult && (
             <div style={{
@@ -503,12 +452,6 @@ function WorkflowExecutionContent(): React.ReactElement {
                 {JSON.stringify(submitResult, null, 2)}
               </pre>
             </div>
-          )}
-          
-          {!execution.isExecuting && !execution.result && !execution.error && !submitResult && (
-            <p style={{ color: '#666', fontStyle: 'italic' }}>
-              Execute the workflow to see results here.
-            </p>
           )}
         </div>
       </main>
