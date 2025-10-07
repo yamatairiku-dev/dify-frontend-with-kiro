@@ -6,6 +6,12 @@ import './index.css';
 // Import routes from React Router v7
 import routes from 'virtual:react-router/routes';
 
+// Initialize security features
+import { initializeSecurity } from './services/securityService';
+
+// Initialize security features before creating router
+initializeSecurity();
+
 const router = createBrowserRouter(routes);
 
 const rootElement = document.getElementById('root');

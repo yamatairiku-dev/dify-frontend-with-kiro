@@ -60,3 +60,20 @@ export {
   handleDifyApiError,
   handleError,
 } from './specificErrorHandlers';
+
+// Security services
+export {
+  CSRFProtection,
+  InputValidator,
+  RateLimiter,
+  SecurityHeaders,
+  SecureFetch,
+  initializeSecurity,
+} from './securityService';
+
+// Session security services
+export {
+  SessionSecurityService,
+  SessionSecurityEvent,
+  type SessionSecurityEventListener,
+} from './sessionSecurityService';

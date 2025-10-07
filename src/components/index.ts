@@ -59,3 +59,7 @@ export {
 export { WorkflowList } from './WorkflowList';
 export { WorkflowDashboard } from './WorkflowDashboard';
 export { WorkflowExecutionResults } from './WorkflowExecutionResults';
+
+// Session management components
+export { SessionManagement } from './SessionManagement';
+export { SessionTimeoutWarning } from './SessionTimeoutWarning';

@@ -38,3 +38,10 @@ export {
   useUnifiedErrorHandling,
   useAsyncWithErrorHandling,
 } from './useErrorHandling';
+
+// Session security hooks
+export {
+  useSessionSecurity,
+  useSessionTimeoutWarning,
+  useIdleTimeout
+} from './useSessionSecurity';

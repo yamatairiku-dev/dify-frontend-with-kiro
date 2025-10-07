@@ -59,6 +59,11 @@ export const Navigation: React.FC<NavigationProps> = ({
         resource: 'workflow',
         action: 'read'
       }
+    },
+    {
+      path: '/session-management',
+      label: 'Session',
+      icon: '🔒'
     }
   ];
 

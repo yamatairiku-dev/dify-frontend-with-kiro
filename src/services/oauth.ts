@@ -1,5 +1,6 @@
 import { AuthProviderType, OAuthConfig } from '../types/auth';
 import { config } from '../config/environment';
+import { CSRFProtection } from './securityService';
 
 /**
  * OAuth service for handling authentication with multiple providers
@@ -44,7 +45,7 @@ export class OAuthService {
    * Generate OAuth authorization URL for the specified provider
    */
   async getAuthorizationUrl(provider: AuthProviderType): Promise<string> {
-    const state = this.generateState();
+    const state = CSRFProtection.generateSecureOAuthState(provider);
     const codeVerifier = this.generateCodeVerifier();
     const codeChallenge = await this.generateCodeChallenge(codeVerifier);
 
@@ -154,7 +155,7 @@ export class OAuthService {
   }
 
   /**
-   * Validate OAuth callback parameters
+   * Validate OAuth callback parameters with enhanced CSRF protection
    */
   validateCallback(
     code: string,
@@ -176,6 +177,11 @@ export class OAuthService {
       throw new Error('OAuth provider mismatch');
     }
 
+    // Enhanced CSRF validation
+    if (!CSRFProtection.validateOAuthState(state, provider)) {
+      throw new Error('CSRF validation failed for OAuth callback');
+    }
+
     return true;
   }
 
@@ -191,12 +197,20 @@ export class OAuthService {
   }
 
   /**
-   * Clear OAuth session data
+   * Clear OAuth session data including CSRF tokens
    */
   clearOAuthSession(): void {
     sessionStorage.removeItem('oauth_state');
     sessionStorage.removeItem('oauth_code_verifier');
     sessionStorage.removeItem('oauth_provider');
+    
+    // Clear provider-specific OAuth state
+    ['azure', 'github', 'google'].forEach(provider => {
+      sessionStorage.removeItem(`oauth_state_${provider}`);
+    });
+    
+    // Clear CSRF token
+    CSRFProtection.clearCSRFToken();
   }
 
   /**

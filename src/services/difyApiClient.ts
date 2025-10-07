@@ -1,5 +1,6 @@
 import { config } from '../config/environment';
 import { TokenManager } from './tokenManager';
+import { SecureFetch, RateLimiter, InputValidator } from './securityService';
 import type {
   DifyWorkflow,
   WorkflowResult,
@@ -179,13 +180,11 @@ export class DifyApiClient {
   }
 
   /**
-   * Execute the actual HTTP request
+   * Execute the actual HTTP request with security features
    */
   private async executeRequest<T>(request: SignedRequest): Promise<DifyApiResponse<T>> {
     let url = `${this.config.baseUrl}${request.endpoint}`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), request.timeout || this.config.timeout);
-
+    
     try {
       const fetchOptions: RequestInit = {
         method: request.method,
@@ -193,10 +192,17 @@ export class DifyApiClient {
           'Content-Type': 'application/json',
           ...request.headers,
         },
-        signal: controller.signal,
       };
 
       if (request.method !== 'GET' && request.data) {
+        // Validate input data before sending
+        const validation = InputValidator.validateWorkflowInput(request.data);
+        if (!validation.isValid) {
+          throw this.createApiError(400, { 
+            message: 'Invalid request data', 
+            errors: validation.errors 
+          });
+        }
         fetchOptions.body = JSON.stringify(request.data);
       } else if (request.method === 'GET' && request.data) {
         // Add query parameters for GET requests
@@ -212,8 +218,9 @@ export class DifyApiClient {
         }
       }
 
-      const response = await fetch(url, fetchOptions);
-      clearTimeout(timeoutId);
+      // Use secure fetch with rate limiting
+      const rateLimitKey = `dify-api:${request.method}:${request.endpoint}`;
+      const response = await SecureFetch.fetch(url, fetchOptions, rateLimitKey);
 
       const responseData = await response.json();
 
@@ -231,8 +238,6 @@ export class DifyApiClient {
         },
       };
     } catch (error) {
-      clearTimeout(timeoutId);
-      
       if (error instanceof Error && error.name === 'AbortError') {
         throw this.createApiError(408, { message: 'Request timeout' });
       }

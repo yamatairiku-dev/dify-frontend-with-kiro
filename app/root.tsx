@@ -1,6 +1,7 @@
 import React from 'react';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useRouteError } from 'react-router';
 import { AuthProvider } from '../src/context/AuthContext';
+import { SessionTimeoutWarning } from '../src/components/SessionTimeoutWarning';
 
 export default function App(): React.ReactElement {
   return (
@@ -17,6 +18,7 @@ export default function App(): React.ReactElement {
       <body>
         <AuthProvider>
           <Outlet />
+          <SessionTimeoutWarning />
         </AuthProvider>
         <ScrollRestoration />
         <Scripts />

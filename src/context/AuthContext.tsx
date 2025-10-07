@@ -4,6 +4,7 @@ import { authReducer, initialAuthState } from './authReducer';
 import { initiateOAuthLogin } from '../utils/oauth-redirect';
 import { TokenManager } from '../services/tokenManager';
 import { TokenRefreshService } from '../services/tokenRefresh';
+import { SessionSecurityService } from '../services/sessionSecurityService';
 
 // Create the authentication context
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,6 +46,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Logout function - complete implementation
   const logout = useCallback(async (): Promise<void> => {
     try {
+      // Stop session security monitoring
+      SessionSecurityService.stopSessionMonitoring();
+      
       // Clear auto refresh timer
       TokenRefreshService.clearAutoRefresh();
       
@@ -58,6 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
       // Even if logout fails, clear the local state and session
+      SessionSecurityService.stopSessionMonitoring();
       TokenManager.clearSession();
       dispatch({ type: 'LOGOUT' });
     }
@@ -101,6 +106,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Set up automatic token refresh
       TokenRefreshService.setupAutoRefresh();
       
+      // Initialize session security monitoring
+      SessionSecurityService.initialize();
+      SessionSecurityService.startSessionMonitoring(sessionData.user);
+      
       console.log('Login completed successfully');
     } catch (error) {
       console.error('Login completion error:', error);
@@ -123,6 +132,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           
           // Set up automatic token refresh
           TokenRefreshService.setupAutoRefresh();
+          
+          // Initialize session security monitoring for restored session
+          SessionSecurityService.initialize();
+          SessionSecurityService.startSessionMonitoring(user);
           
           console.log('Session restored successfully');
         } else {
