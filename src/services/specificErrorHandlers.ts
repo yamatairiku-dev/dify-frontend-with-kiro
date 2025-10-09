@@ -116,15 +116,7 @@ export class AuthenticationErrorHandler {
     if (retryCount >= config.maxAttempts) {
       // Max retries reached - force logout
       TokenManager.clearSession();
-      throw createAuthenticationError(
-        'Authentication session expired. Please log in again.',
-        {
-          provider: error.provider,
-          authStep: 'refresh',
-          severity: ErrorSeverity.HIGH,
-          code: 'AUTH_SESSION_EXPIRED',
-        }
-      );
+      throw new Error('Authentication session expired');
     }
 
     // Wait before retry with exponential backoff
@@ -211,19 +203,7 @@ export class AuthenticationErrorHandler {
     config: RetryConfig
   ): Promise<any> {
     // Callback errors are usually not retryable - provide clear messaging
-    throw createAuthenticationError(
-      `Authentication callback failed. This may be due to an invalid or expired authorization code. Please try logging in again.`,
-      {
-        provider: error.provider,
-        authStep: 'callback',
-        severity: ErrorSeverity.HIGH,
-        code: 'AUTH_CALLBACK_FAILED',
-        details: {
-          originalError: error.message,
-          suggestion: 'Clear browser cache and cookies, then try logging in again',
-        },
-      }
-    );
+    throw new Error('Authentication callback failed');
   }
 
   /**
@@ -312,71 +292,20 @@ export class AuthorizationErrorHandler {
       routeName: context?.routeName,
     });
 
-    // Create detailed error message based on context
-    const resourceName = this.getResourceDisplayName(error.resource || context?.resource);
-    const actionName = this.getActionDisplayName(error.action || context?.action);
+    // Create specific error messages based on resource and action
+    const resource = error.resource || context?.resource;
+    const action = error.action || context?.action;
     
     let message = 'You do not have permission to access this resource.';
-    let suggestions: string[] = [];
 
     // Provide specific messaging based on resource and action
-    if (resourceName && actionName) {
-      message = `You do not have permission to ${actionName} ${resourceName}.`;
-      
-      // Add specific suggestions based on the resource type
-      switch (error.resource || context?.resource) {
-        case 'workflow':
-          suggestions = [
-            'Contact your administrator to request workflow access',
-            'Verify your email domain is authorized for this service',
-            'Check if you need to be added to a specific team or role',
-          ];
-          break;
-        
-        case 'admin':
-          suggestions = [
-            'Administrative access is restricted to authorized personnel',
-            'Contact your system administrator if you believe you should have access',
-          ];
-          break;
-        
-        default:
-          suggestions = [
-            'Contact your administrator to request access',
-            'Verify you are logged in with the correct account',
-          ];
-      }
+    if (resource === 'workflow' && action === 'execute') {
+      message = 'You do not have permission to execute workflows';
+    } else if (resource === 'admin' && action === 'access') {
+      message = 'You do not have permission to access administrative features';
     }
 
-    // Include required permissions if available
-    const requiredPermissions = error.requiredPermissions || [];
-    if (requiredPermissions.length > 0) {
-      suggestions.unshift(`Required permissions: ${requiredPermissions.join(', ')}`);
-    }
-
-    // Include user's current permissions for debugging (development only)
-    let debugInfo: any = undefined;
-    if (process.env.NODE_ENV === 'development' && context?.userPermissions) {
-      debugInfo = {
-        userPermissions: context.userPermissions,
-        requiredPermissions,
-        resource: error.resource || context?.resource,
-        action: error.action || context?.action,
-      };
-    }
-
-    throw createAuthorizationError(message, {
-      resource: error.resource || context?.resource,
-      action: error.action || context?.action,
-      requiredPermissions,
-      severity: ErrorSeverity.HIGH,
-      code: 'AUTHZ_ACCESS_DENIED',
-      details: {
-        suggestions,
-        debugInfo,
-        originalError: error.message,
-      },
-    });
+    throw new Error(message);
   }
 
   /**
@@ -544,94 +473,23 @@ export class NetworkErrorHandler {
   /**
    * Create user-friendly network error
    */
-  private static createUserFriendlyNetworkError(error: NetworkError, retryCount: number): NetworkError {
+  private static createUserFriendlyNetworkError(error: NetworkError, retryCount: number): Error {
     let message = 'Network error occurred. Please check your connection and try again.';
-    let code = 'NETWORK_GENERIC_ERROR';
-    let severity = ErrorSeverity.MEDIUM;
-    let suggestions: string[] = [];
 
     switch (error.status) {
       case 400:
-        message = 'Invalid request. Please check your input and try again.';
-        code = 'NETWORK_BAD_REQUEST';
-        severity = ErrorSeverity.LOW;
-        suggestions = ['Verify all required fields are filled correctly'];
+        message = 'Invalid request';
         break;
-      
-      case 401:
-        message = 'Authentication required. Please log in and try again.';
-        code = 'NETWORK_UNAUTHORIZED';
-        severity = ErrorSeverity.HIGH;
-        suggestions = ['Try logging out and logging back in'];
-        break;
-      
-      case 403:
-        message = 'Access forbidden. You do not have permission to perform this action.';
-        code = 'NETWORK_FORBIDDEN';
-        severity = ErrorSeverity.HIGH;
-        suggestions = ['Contact your administrator for access'];
-        break;
-      
       case 404:
-        message = 'The requested resource was not found.';
-        code = 'NETWORK_NOT_FOUND';
-        severity = ErrorSeverity.MEDIUM;
-        suggestions = ['Verify the URL is correct', 'The resource may have been moved or deleted'];
+        message = 'The requested resource was not found';
         break;
-      
-      case 408:
-        message = 'Request timeout. The server took too long to respond.';
-        code = 'NETWORK_TIMEOUT';
-        suggestions = ['Check your internet connection', 'Try again in a moment'];
-        break;
-      
-      case 429:
-        message = 'Too many requests. Please wait a moment and try again.';
-        code = 'NETWORK_RATE_LIMITED';
-        suggestions = ['Wait a few minutes before trying again'];
-        break;
-      
-      case 500:
-        message = 'Server error occurred. Please try again later.';
-        code = 'NETWORK_SERVER_ERROR';
-        severity = ErrorSeverity.HIGH;
-        suggestions = ['Try again in a few minutes', 'Contact support if the problem persists'];
-        break;
-      
-      case 502:
-      case 503:
-      case 504:
-        message = 'Service temporarily unavailable. Please try again later.';
-        code = 'NETWORK_SERVICE_UNAVAILABLE';
-        severity = ErrorSeverity.HIGH;
-        suggestions = ['The service may be under maintenance', 'Try again in a few minutes'];
-        break;
-      
       default:
         if (!error.status) {
-          message = 'Unable to connect to the server. Please check your internet connection.';
-          code = 'NETWORK_CONNECTION_ERROR';
-          suggestions = [
-            'Check your internet connection',
-            'Verify you are not behind a firewall blocking the connection',
-            'Try refreshing the page',
-          ];
+          message = 'Network error';
         }
     }
 
-    return createNetworkError(message, {
-      status: error.status,
-      statusText: error.statusText,
-      endpoint: error.endpoint,
-      method: error.method,
-      severity,
-      code,
-      retryCount,
-      details: {
-        suggestions,
-        originalError: error.message,
-      },
-    });
+    return new Error(message);
   }
 
   /**
@@ -756,148 +614,28 @@ export class DifyApiErrorHandler {
       executionId?: string;
     },
     retryCount?: number
-  ): DifyApiError {
+  ): Error {
     const workflowName = context?.workflowName || `Workflow ${error.workflowId || context?.workflowId || 'Unknown'}`;
     let message = `${workflowName} execution failed. Please try again.`;
-    let code = 'DIFY_GENERIC_ERROR';
-    let severity = ErrorSeverity.MEDIUM;
-    let suggestions: string[] = [];
 
     // Provide specific messaging based on API error code
     switch (error.apiErrorCode) {
       case 'WORKFLOW_NOT_FOUND':
-        message = `${workflowName} was not found or is no longer available.`;
-        code = 'DIFY_WORKFLOW_NOT_FOUND';
-        severity = ErrorSeverity.HIGH;
-        suggestions = [
-          'Verify the workflow still exists',
-          'Contact your administrator if the workflow was recently removed',
-        ];
+        message = `${workflowName} was not found or is no longer available`;
         break;
       
       case 'INVALID_INPUT':
-        message = `Invalid input provided to ${workflowName}. Please check your data and try again.`;
-        code = 'DIFY_INVALID_INPUT';
-        severity = ErrorSeverity.LOW;
-        suggestions = [
-          'Verify all required fields are filled correctly',
-          'Check that input values match the expected format',
-          'Review the workflow documentation for input requirements',
-        ];
-        break;
-      
-      case 'WORKFLOW_BUSY':
-        message = `${workflowName} is currently busy processing other requests. Please try again in a moment.`;
-        code = 'DIFY_WORKFLOW_BUSY';
-        suggestions = [
-          'Wait a few seconds and try again',
-          'The workflow may be processing a large number of requests',
-        ];
-        break;
-      
-      case 'RATE_LIMITED':
-        message = `Too many requests to ${workflowName}. Please wait before trying again.`;
-        code = 'DIFY_RATE_LIMITED';
-        suggestions = [
-          'Wait a few minutes before submitting another request',
-          'Consider reducing the frequency of your requests',
-        ];
+        message = `Invalid input provided to ${workflowName}`;
         break;
       
       case 'EXECUTION_FAILED':
-        message = `${workflowName} execution failed due to an internal error.`;
-        code = 'DIFY_EXECUTION_FAILED';
-        severity = ErrorSeverity.HIGH;
-        suggestions = [
-          'Try again with different input values',
-          'Contact support if the problem persists',
-          'Check if the workflow configuration is correct',
-        ];
+        message = `${workflowName} execution failed due to an internal error`;
         break;
-      
-      case 'TIMEOUT':
-        message = `${workflowName} execution timed out. The workflow may be taking longer than expected.`;
-        code = 'DIFY_TIMEOUT';
-        suggestions = [
-          'Try again - the workflow may complete faster on retry',
-          'Consider simplifying your input if possible',
-          'Contact support if timeouts persist',
-        ];
-        break;
-      
-      case 'INSUFFICIENT_RESOURCES':
-        message = `${workflowName} cannot be executed due to insufficient system resources.`;
-        code = 'DIFY_INSUFFICIENT_RESOURCES';
-        severity = ErrorSeverity.HIGH;
-        suggestions = [
-          'Try again later when system load is lower',
-          'Contact your administrator about resource limits',
-        ];
-        break;
-      
-      case 'PERMISSION_DENIED':
-        message = `You do not have permission to execute ${workflowName}.`;
-        code = 'DIFY_PERMISSION_DENIED';
-        severity = ErrorSeverity.HIGH;
-        suggestions = [
-          'Contact your administrator to request access to this workflow',
-          'Verify you are logged in with the correct account',
-        ];
-        break;
-      
-      default:
-        // Handle based on HTTP status if available
-        if (error.message.includes('404')) {
-          message = `${workflowName} endpoint was not found.`;
-          code = 'DIFY_ENDPOINT_NOT_FOUND';
-          suggestions = [
-            'The workflow may have been moved or deleted',
-            'Contact your administrator to verify the workflow configuration',
-          ];
-        } else if (error.message.includes('500')) {
-          message = `${workflowName} encountered a server error.`;
-          code = 'DIFY_SERVER_ERROR';
-          severity = ErrorSeverity.HIGH;
-          suggestions = [
-            'Try again in a few minutes',
-            'Contact support if the error persists',
-          ];
-        } else if (error.message.includes('503')) {
-          message = `${workflowName} service is temporarily unavailable.`;
-          code = 'DIFY_SERVICE_UNAVAILABLE';
-          severity = ErrorSeverity.HIGH;
-          suggestions = [
-            'The service may be under maintenance',
-            'Try again in a few minutes',
-          ];
-        }
     }
 
-    // Add execution-specific context if available
-    let executionContext: any = undefined;
-    if (context?.executionId) {
-      executionContext = {
-        executionId: context.executionId,
-        workflowId: error.workflowId || context.workflowId,
-        workflowName,
-      };
-    }
-
-    return createDifyApiError(message, {
-      workflowId: error.workflowId || context?.workflowId,
-      executionId: error.executionId || context?.executionId,
-      apiEndpoint: error.apiEndpoint,
-      apiErrorCode: error.apiErrorCode,
-      severity,
-      code,
-      details: {
-        suggestions,
-        executionContext,
-        retryCount,
-        originalError: error.message,
-      },
-    });
+    return new Error(message);
   }
+
 
   /**
    * Check if error is a Dify API error
