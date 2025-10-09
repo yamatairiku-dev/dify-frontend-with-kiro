@@ -3,7 +3,7 @@
  * Provides session monitoring, timeout warnings, and security event handling
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { SessionSecurityService, SessionSecurityEvent } from '../services/sessionSecurityService';
 import { useAuth } from '../context/AuthContext';
 
@@ -54,7 +54,7 @@ const DEFAULT_OPTIONS: UseSessionSecurityOptions = {
  */
 export const useSessionSecurity = (options: UseSessionSecurityOptions = {}) => {
   const { user, isAuthenticated, logout } = useAuth();
-  const opts = { ...DEFAULT_OPTIONS, ...options };
+  const opts = useMemo(() => ({ ...DEFAULT_OPTIONS, ...options }), [options]);
   
   // State management
   const [state, setState] = useState<SessionSecurityState>({

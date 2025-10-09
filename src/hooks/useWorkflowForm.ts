@@ -241,7 +241,7 @@ export function useWorkflowForm(
     } finally {
       setIsSubmitting(false);
     }
-  }, [validateForm, values]);
+  }, [fields, validateForm, values]);
 
   const reset = useCallback(() => {
     setValues(initialValues);

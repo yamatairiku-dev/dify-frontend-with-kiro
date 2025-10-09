@@ -24,14 +24,7 @@ function getWorkflowName(id: string): string {
   return names[id] || `Workflow ${id}`;
 }
 
-function getWorkflowDescription(id: string): string {
-  const descriptions: Record<string, string> = {
-    'workflow-1': 'Analyze text content for sentiment and key topics',
-    'workflow-2': 'Process and extract information from documents',
-    'workflow-3': 'Transform and clean data according to specified rules',
-  };
-  return descriptions[id] || `Execute workflow ${id}`;
-}
+// Removed unused function getWorkflowDescription
 
 function WorkflowExecutionContent(): React.ReactElement {
   const { user } = useAuth();
@@ -58,16 +51,18 @@ function WorkflowExecutionContent(): React.ReactElement {
 
   // Simple execution state using React Query mutation
   const execution = {
-    execute: async (input: any) => {
+    execute: async (input: Record<string, unknown>) => {
       // Mock execution for now
       return { executionId: 'mock-id', status: 'completed' as const, result: input };
     },
-    executeAsync: async (input: any) => {
+    executeAsync: async (input: Record<string, unknown>) => {
       return { executionId: 'mock-id', status: 'completed' as const, result: input };
     },
     isExecuting: false,
     executionError: null,
     executionResult: undefined,
+    progress: 0,
+    cancel: () => {},
     reset: () => {},
   };
 
@@ -91,7 +86,7 @@ function WorkflowExecutionContent(): React.ReactElement {
     setFieldTouched,
     handleSubmit,
     reset
-  } = useWorkflowForm(workflow.data);
+  } = useWorkflowForm(workflow.data || null);
 
   // Combined loading state
   const isLoading = authLoading || dataLoading;
@@ -456,7 +451,7 @@ function WorkflowExecutionContent(): React.ReactElement {
           <h2>Workflow Output</h2>
           
           <WorkflowExecutionResults
-            result={execution.executionResult}
+            result={execution.executionResult || null}
             isExecuting={execution.isExecuting}
             progress={50}
             error={execution.executionError}

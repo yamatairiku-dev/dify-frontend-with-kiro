@@ -128,7 +128,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
       </div>
 
       {/* Error Details */}
-      {process.env.NODE_ENV === 'development' && (
+      {process.env['NODE_ENV'] === 'development' && (
         <div style={{
           padding: '1rem',
           backgroundColor: '#f8f9fa',
@@ -249,7 +249,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
       )}
 
       {/* Stack Trace (Development Only) */}
-      {showStack && error.stack && process.env.NODE_ENV === 'development' && (
+      {showStack && error.stack && process.env['NODE_ENV'] === 'development' && (
         <details style={{
           padding: '1rem',
           backgroundColor: '#f8f9fa',

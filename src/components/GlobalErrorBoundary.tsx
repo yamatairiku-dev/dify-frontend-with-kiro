@@ -71,13 +71,13 @@ export class GlobalErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoun
     // Update error context with component stack
     const updatedContext: ErrorContext = {
       ...this.state.errorContext!,
-      componentStack: errorInfo.componentStack,
+      componentStack: errorInfo.componentStack || undefined,
     };
 
     // Update error with component stack
     const updatedError: AppError = {
       ...this.state.error!,
-      componentStack: errorInfo.componentStack,
+      componentStack: errorInfo.componentStack || undefined,
     };
 
     // Update state with enhanced error information
@@ -99,7 +99,7 @@ export class GlobalErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoun
     }
 
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
       console.group('🚨 Global Error Boundary Caught Error');
       console.error('Original Error:', jsError);
       console.error('Error Info:', errorInfo);
