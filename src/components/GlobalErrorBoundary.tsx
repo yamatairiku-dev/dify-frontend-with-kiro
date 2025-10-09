@@ -298,7 +298,7 @@ export class GlobalErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoun
         options={{
           title: 'Application Error',
           description: 'An unexpected error occurred in the application.',
-          showStack: process.env.NODE_ENV === 'development',
+          showStack: process.env['NODE_ENV'] === 'development',
           showRetry: false, // Handled by actions
           showReload: false, // Handled by actions
           showGoHome: false, // Handled by actions

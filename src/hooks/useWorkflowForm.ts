@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { workflowExecutionService } from '../services/workflowExecutionService';
 import type {
   WorkflowInput,
@@ -76,8 +76,10 @@ export function useWorkflowForm(
   const [submitResult, setSubmitResult] = useState<any>(null);
 
   // Generate form fields from workflow schema
-  const fields: FormField[] = workflow?.inputSchema ? 
-    generateFormFields(workflow.inputSchema) : [];
+  const fields: FormField[] = useMemo(() => 
+    workflow?.inputSchema ? generateFormFields(workflow.inputSchema) : [],
+    [workflow?.inputSchema]
+  );
 
   // Validate individual field
   const validateField = useCallback((field: string): string | null => {

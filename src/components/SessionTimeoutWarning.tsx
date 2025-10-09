@@ -110,7 +110,7 @@ const SessionWarningModal: React.FC<SessionWarningModalProps> = ({
         </div>
       </div>
       
-      <style jsx>{`
+      <style>{`
         .session-warning-overlay {
           position: fixed;
           top: 0;

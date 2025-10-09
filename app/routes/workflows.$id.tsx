@@ -181,7 +181,7 @@ function WorkflowExecutionContent(): React.ReactElement {
     );
   }
 
-  const handleInputChange = (field: string, value: any): void => {
+  const handleInputChange = (field: string, value: unknown): void => {
     setValue(field, value);
     setFieldTouched(field, true);
   };
@@ -194,11 +194,11 @@ function WorkflowExecutionContent(): React.ReactElement {
     });
   };
 
-  const renderInputField = (field: any): React.ReactElement => {
+  const renderInputField = (field: { name: string; type: string; label: string; description?: string; validation?: unknown; required?: boolean }): React.ReactElement => {
     const { name, type, label, description, validation, required } = field;
     const value = inputData[name] || '';
     const error = formErrors[name];
-    const touched = formErrors[name] !== undefined;
+    // Remove unused variable 'touched'
     
     const fieldStyle = {
       width: '100%',

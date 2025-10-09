@@ -92,7 +92,7 @@ const SessionInfoDisplay: React.FC<SessionInfoDisplayProps> = ({ sessionInfo, cl
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .session-info-display {
           background: white;
           border: 1px solid #e5e7eb;
@@ -348,7 +348,7 @@ const SecurityEventsDisplay: React.FC<SecurityEventsDisplayProps> = ({ events, c
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .security-events-display {
           background: white;
           border: 1px solid #e5e7eb;
@@ -521,7 +521,7 @@ export const SessionManagement: React.FC = () => {
           <p>No active session to manage. Please log in to view session information.</p>
         </div>
         
-        <style jsx>{`
+        <style>{`
           .session-management {
             max-width: 800px;
             margin: 0 auto;
@@ -590,7 +590,7 @@ export const SessionManagement: React.FC = () => {
         />
       </div>
 
-      <style jsx>{`
+      <style>{`
         .session-management {
           max-width: 800px;
           margin: 0 auto;

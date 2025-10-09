@@ -163,8 +163,8 @@ describe('ErrorDisplay', () => {
     });
 
     it('should show error details in development', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      const originalEnv = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'development';
 
       const error = createError(ErrorType.COMPONENT_ERROR, 'Component failed', {
         code: 'COMP_001',
@@ -184,12 +184,12 @@ describe('ErrorDisplay', () => {
       expect(screen.getByText('COMP_001')).toBeInTheDocument();
       expect(screen.getByText('TestRoute')).toBeInTheDocument();
 
-      process.env.NODE_ENV = originalEnv;
+      process.env['NODE_ENV'] = originalEnv;
     });
 
     it('should show stack trace in development', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      const originalEnv = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'development';
 
       const error = createError(ErrorType.ROUTE_ERROR, 'Route failed', {
         stack: 'Error: Route failed\n  at test.js:10:5',
@@ -209,12 +209,12 @@ describe('ErrorDisplay', () => {
       expect(screen.getByText('Stack Trace (Development Only)')).toBeInTheDocument();
       expect(screen.getByText(/Error: Route failed/)).toBeInTheDocument();
 
-      process.env.NODE_ENV = originalEnv;
+      process.env['NODE_ENV'] = originalEnv;
     });
 
     it('should hide stack trace when showStack is false', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      const originalEnv = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'development';
 
       const error = createError(ErrorType.NETWORK_ERROR, 'Network failed', {
         stack: 'Error: Network failed\n  at test.js:10:5',
@@ -233,7 +233,7 @@ describe('ErrorDisplay', () => {
 
       expect(screen.queryByText('Stack Trace (Development Only)')).not.toBeInTheDocument();
 
-      process.env.NODE_ENV = originalEnv;
+      process.env['NODE_ENV'] = originalEnv;
     });
 
     it('should apply custom className and style', () => {

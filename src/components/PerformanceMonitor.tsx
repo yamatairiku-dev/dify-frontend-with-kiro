@@ -291,7 +291,7 @@ PerformanceStatsDisplay.displayName = 'PerformanceStatsDisplay';
 
 // Main performance monitor component
 export const PerformanceMonitor = memo<PerformanceMonitorProps>(({
-  enabled = process.env.NODE_ENV === 'development',
+  enabled = process.env['NODE_ENV'] === 'development',
   showDetails = false,
   position = 'bottom-right',
 }) => {
