@@ -1,7 +1,70 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useRouteError } from 'react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from '../src/context/AuthContext';
 import { SessionTimeoutWarning } from '../src/components/SessionTimeoutWarning';
+import { PerformanceMonitor } from '../src/components/PerformanceMonitor';
+import { queryClient } from '../src/config/react-query';
+import { analyticsService, errorTrackingService, performanceMonitoringService } from '../src/services/monitoringService';
+import { getDeploymentConfig, validateEnvironmentConfig, getBuildInfo } from '../src/config/deployment';
+
+function MonitoringInitializer(): React.ReactElement | null {
+  useEffect(() => {
+    // Initialize monitoring services
+    const config = getDeploymentConfig();
+    const buildInfo = getBuildInfo();
+    
+    // Validate environment configuration
+    const envValidation = validateEnvironmentConfig();
+    if (!envValidation.isValid) {
+      console.warn('Missing environment variables:', envValidation.missingVars);
+      errorTrackingService.trackError(
+        new Error('Missing environment variables'),
+        { missingVars: envValidation.missingVars }
+      );
+    }
+
+    // Register service worker in production
+    if (config.features.enableServiceWorker && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('Service Worker registered:', registration);
+          analyticsService.trackEvent('service_worker_registered', {
+            scope: registration.scope,
+          });
+        })
+        .catch((error) => {
+          console.error('Service Worker registration failed:', error);
+          errorTrackingService.trackError(error, {
+            type: 'service_worker_registration_failed',
+          });
+        });
+    }
+
+    // Track application initialization
+    analyticsService.trackEvent('app_initialized', {
+      version: buildInfo.version,
+      mode: buildInfo.mode,
+      buildTime: buildInfo.buildTime,
+      environment: config.environment,
+    });
+
+    // Track initial performance metrics
+    performanceMonitoringService.trackMemoryUsage();
+
+    // Set up periodic memory tracking
+    const memoryInterval = setInterval(() => {
+      performanceMonitoringService.trackMemoryUsage();
+    }, 30000); // Every 30 seconds
+
+    return () => {
+      clearInterval(memoryInterval);
+    };
+  }, []);
+
+  return null;
+}
 
 export default function App(): React.ReactElement {
   return (
@@ -16,10 +79,15 @@ export default function App(): React.ReactElement {
         <Links />
       </head>
       <body>
-        <AuthProvider>
-          <Outlet />
-          <SessionTimeoutWarning />
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <MonitoringInitializer />
+            <Outlet />
+            <SessionTimeoutWarning />
+          </AuthProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <PerformanceMonitor enabled={process.env.NODE_ENV === 'development'} />
+        </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -30,6 +98,16 @@ export default function App(): React.ReactElement {
 // Error Boundary for the root route
 export function ErrorBoundary(): React.ReactElement {
   const error = useRouteError();
+
+  // Track error in monitoring service
+  useEffect(() => {
+    if (error instanceof Error) {
+      errorTrackingService.trackError(error, {
+        type: 'route_error',
+        route: window.location.pathname,
+      });
+    }
+  }, [error]);
 
   if (isRouteErrorResponse(error)) {
     return (

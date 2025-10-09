@@ -45,3 +45,14 @@ export {
   useSessionTimeoutWarning,
   useIdleTimeout
 } from './useSessionSecurity';
+
+// Optimized React Query hooks
+export {
+  useOptimizedWorkflowList,
+  useOptimizedWorkflow,
+  useOptimizedWorkflowExecution,
+  useWorkflowExecutionStatus,
+  useOptimizedParallelWorkflowData,
+  useWorkflowPrefetch,
+  useWorkflowCacheManagement,
+} from './useOptimizedWorkflowData';

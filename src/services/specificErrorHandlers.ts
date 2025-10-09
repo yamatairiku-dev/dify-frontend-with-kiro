@@ -75,7 +75,7 @@ export class AuthenticationErrorHandler {
     operation: () => Promise<any>,
     context?: { provider?: string; authStep?: string }
   ): Promise<any> {
-    const config = DEFAULT_RETRY_CONFIGS.authentication;
+    const config = DEFAULT_RETRY_CONFIGS['authentication'];
     const errorKey = `${error.provider || 'unknown'}-${error.authStep || 'unknown'}`;
     const currentRetryCount = this.retryCount.get(errorKey) || 0;
 
@@ -365,7 +365,7 @@ export class NetworkErrorHandler {
     operation: () => Promise<any>,
     context?: { endpoint?: string; method?: string }
   ): Promise<any> {
-    const config = DEFAULT_RETRY_CONFIGS.network;
+    const config = DEFAULT_RETRY_CONFIGS['network'];
     const errorKey = `${error.endpoint || context?.endpoint || 'unknown'}-${error.method || context?.method || 'unknown'}`;
     const currentRetryCount = this.retryCount.get(errorKey) || 0;
 
@@ -536,7 +536,7 @@ export class DifyApiErrorHandler {
       executionId?: string;
     }
   ): Promise<any> {
-    const config = DEFAULT_RETRY_CONFIGS.difyApi;
+    const config = DEFAULT_RETRY_CONFIGS['difyApi'];
     const errorKey = `${error.workflowId || context?.workflowId || 'unknown'}-${error.apiEndpoint || 'unknown'}`;
     const currentRetryCount = this.retryCount.get(errorKey) || 0;
 

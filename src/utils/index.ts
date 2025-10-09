@@ -18,3 +18,12 @@ export {
   isNetworkError,
   isDifyApiError,
 } from './errorHandlingIntegration';
+
+// Route preloading and performance utilities
+export {
+  RoutePreloader,
+  useRoutePreloading,
+  createPreloadLink,
+  PreloadPerformanceMonitor,
+  IntersectionPreloader,
+} from './routePreloading';

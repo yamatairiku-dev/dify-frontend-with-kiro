@@ -14,13 +14,13 @@ import { shouldLogError, sanitizeError } from '../utils/errorUtils';
  * Default error logging configuration
  */
 const DEFAULT_CONFIG: ErrorLoggingConfig = {
-  enableConsoleLogging: process.env.NODE_ENV === 'development',
-  enableRemoteLogging: process.env.NODE_ENV === 'production',
+  enableConsoleLogging: process.env['NODE_ENV'] === 'development',
+  enableRemoteLogging: process.env['NODE_ENV'] === 'production',
   logLevel: ErrorSeverity.MEDIUM,
   excludePersonalInfo: true,
   maxStackTraceLength: 2000,
-  remoteEndpoint: process.env.REACT_APP_ERROR_LOGGING_ENDPOINT,
-  apiKey: process.env.REACT_APP_ERROR_LOGGING_API_KEY,
+  remoteEndpoint: process.env['REACT_APP_ERROR_LOGGING_ENDPOINT'],
+  apiKey: process.env['REACT_APP_ERROR_LOGGING_API_KEY'],
 };
 
 /**
@@ -68,7 +68,7 @@ class ErrorLoggingService {
       }
 
       // Store in local storage for debugging (development only)
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env['NODE_ENV'] === 'development') {
         this.storeLocalError(sanitizedError, context);
       }
 
@@ -220,7 +220,7 @@ class ErrorLoggingService {
         userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined,
         url: typeof window !== 'undefined' ? window.location.href : undefined,
         timestamp: new Date().toISOString(),
-        version: process.env.REACT_APP_VERSION || 'unknown',
+        version: process.env['REACT_APP_VERSION'] || 'unknown',
       },
     };
 
@@ -278,7 +278,7 @@ class ErrorLoggingService {
    * Get stored error logs (development only)
    */
   getStoredErrors(): Array<{ error: AppError; context: ErrorContext; timestamp: string }> {
-    if (process.env.NODE_ENV !== 'development') {
+    if (process.env['NODE_ENV'] !== 'development') {
       return [];
     }
 

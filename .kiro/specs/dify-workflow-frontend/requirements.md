@@ -79,3 +79,33 @@ DifyワークフローをバックエンドAPIとして利用するWebフロン�
 5. IF suspicious activity is detected (excessive refresh attempts, session age anomalies) THEN the system SHALL invalidate the session immediately
 6. WHEN tokens are near expiration THEN the system SHALL automatically refresh them with a 5-minute buffer to prevent session interruption
 7. WHEN session restoration fails THEN the system SHALL gracefully handle errors and redirect to authentication flow
+
+### Requirement 7
+
+**User Story:** As a system administrator, I want the application to be production-ready with comprehensive monitoring and deployment capabilities, so that it can be reliably operated in enterprise environments.
+
+#### Acceptance Criteria
+
+1. WHEN the application is deployed THEN the system SHALL support multiple environments (development, staging, production) with environment-specific configurations
+2. WHEN users interact with the application THEN the system SHALL track analytics events, performance metrics, and error occurrences for monitoring purposes
+3. WHEN errors occur THEN the system SHALL automatically report them to error tracking services with appropriate context and user information
+4. WHEN the application is built for production THEN the system SHALL optimize bundle size, enable minification, and implement code splitting for performance
+5. IF the application is accessed offline THEN the system SHALL provide cached content through service worker implementation
+6. WHEN deploying to production THEN the system SHALL validate environment variables, run comprehensive tests, and perform health checks
+7. WHEN the application runs in production THEN the system SHALL implement security headers, rate limiting, and content security policies
+8. IF deployment fails THEN the system SHALL provide rollback capabilities and detailed error reporting
+
+### Requirement 8
+
+**User Story:** As a developer, I want automated deployment and environment management tools, so that I can deploy the application reliably across different environments.
+
+#### Acceptance Criteria
+
+1. WHEN deploying the application THEN the system SHALL provide automated deployment scripts with environment validation
+2. WHEN environment variables are missing or invalid THEN the system SHALL prevent deployment and provide clear error messages
+3. WHEN building for different environments THEN the system SHALL apply appropriate optimizations and security configurations
+4. WHEN using CI/CD pipelines THEN the system SHALL run tests, security scans, and build validation before deployment
+5. IF deployment health checks fail THEN the system SHALL prevent the deployment from completing and provide diagnostic information
+6. WHEN the application is containerized THEN the system SHALL provide Docker configurations with security best practices
+7. WHEN monitoring the application THEN the system SHALL provide health check endpoints and performance metrics
+8. IF the application needs scaling THEN the system SHALL support container orchestration with Docker Compose

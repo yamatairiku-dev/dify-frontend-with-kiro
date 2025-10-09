@@ -1,12 +1,13 @@
 /* eslint-disable react-refresh/only-export-components */
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
-import { Link, useParams } from 'react-router';
+import { Link, useParams, useLocation } from 'react-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { usePermissionRequired } from '../../src/hooks/useProtectedRoute';
-import { useParallelWorkflowData } from '../../src/hooks/useWorkflowData';
+import { useOptimizedParallelWorkflowData } from '../../src/hooks/useOptimizedWorkflowData';
 import { useWorkflowForm } from '../../src/hooks/useWorkflowForm';
 import { FullWidthLayout, WorkflowExecutionResults } from '../../src/components';
+import { useRoutePreloading } from '../../src/utils/routePreloading';
 
 export const meta: MetaFunction = ({ params }) => [
   { title: `Workflow ${params['id']} - Dify Workflow Frontend` },
@@ -35,7 +36,9 @@ function getWorkflowDescription(id: string): string {
 function WorkflowExecutionContent(): React.ReactElement {
   const { user } = useAuth();
   const params = useParams();
+  const location = useLocation();
   const workflowId = params['id'] as string;
+  const { smartPreload } = useRoutePreloading();
 
   // Use permission-based route protection
   const { isLoading: authLoading, isAuthenticated, hasPermission } = usePermissionRequired({
@@ -44,14 +47,22 @@ function WorkflowExecutionContent(): React.ReactElement {
     redirectTo: '/access-denied'
   });
 
-  // Use parallel data loading for workflow data
+  // Use optimized parallel data loading for workflow data
   const {
     workflow,
+    workflowList,
     execution,
     isLoading: dataLoading,
     error: dataError,
     isReady
-  } = useParallelWorkflowData(workflowId);
+  } = useOptimizedParallelWorkflowData(workflowId);
+
+  // Smart preloading for related workflows
+  useEffect(() => {
+    if (workflowList.data && workflowList.data.length > 0) {
+      smartPreload(location.pathname, workflowList.data);
+    }
+  }, [location.pathname, workflowList.data, smartPreload]);
 
   // Use workflow form hook for form management
   const {
@@ -470,8 +481,8 @@ export default function WorkflowExecution(): React.ReactElement {
   const params = useParams();
   const workflowId = params['id'] as string;
   
-  // Use the workflow data hook to get the actual workflow name
-  const { workflow } = useParallelWorkflowData(workflowId);
+  // Use the optimized workflow data hook to get the actual workflow name
+  const { workflow } = useOptimizedParallelWorkflowData(workflowId);
   const workflowName = workflow.data?.name || getWorkflowName(workflowId);
 
   return (

@@ -60,6 +60,13 @@ export { WorkflowList } from './WorkflowList';
 export { WorkflowDashboard } from './WorkflowDashboard';
 export { WorkflowExecutionResults } from './WorkflowExecutionResults';
 
+// Optimized workflow components
+export { OptimizedWorkflowList } from './OptimizedWorkflowList';
+export { OptimizedWorkflowDashboard } from './OptimizedWorkflowDashboard';
+
 // Session management components
 export { SessionManagement } from './SessionManagement';
 export { SessionTimeoutWarning } from './SessionTimeoutWarning';
+
+// Performance monitoring components
+export { PerformanceMonitor, usePerformanceMonitoring } from './PerformanceMonitor';

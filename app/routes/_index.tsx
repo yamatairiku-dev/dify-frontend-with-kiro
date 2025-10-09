@@ -1,11 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { useAuthRequired } from '../../src/hooks/useProtectedRoute';
-import { useWorkflowList } from '../../src/hooks/useWorkflowData';
-import { ProtectedLayout, WorkflowDashboard } from '../../src/components';
+import { useOptimizedWorkflowList } from '../../src/hooks/useOptimizedWorkflowData';
+import { ProtectedLayout, OptimizedWorkflowDashboard } from '../../src/components';
+import { useRoutePreloading } from '../../src/utils/routePreloading';
 
 export const meta: MetaFunction = () => [
   { title: 'Dashboard - Dify Workflow Frontend' },
@@ -14,15 +15,24 @@ export const meta: MetaFunction = () => [
 
 function IndexContent(): React.ReactElement {
   const { user } = useAuth();
+  const location = useLocation();
   const { isLoading: authLoading, isAuthenticated } = useAuthRequired();
+  const { smartPreload } = useRoutePreloading();
   
-  // Use workflow data for dashboard
+  // Use optimized workflow data for dashboard
   const { 
     data: workflows, 
-    loading: workflowsLoading, 
+    isLoading: workflowsLoading, 
     error: workflowsError, 
     refetch 
-  } = useWorkflowList();
+  } = useOptimizedWorkflowList();
+
+  // Smart preloading based on current route
+  useEffect(() => {
+    if (workflows && workflows.length > 0) {
+      smartPreload(location.pathname, workflows);
+    }
+  }, [location.pathname, workflows, smartPreload]);
 
   // Combined loading state
   const isLoading = authLoading || workflowsLoading;
@@ -59,11 +69,14 @@ function IndexContent(): React.ReactElement {
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
-      <WorkflowDashboard
+      <OptimizedWorkflowDashboard
         workflows={workflows || []}
         loading={workflowsLoading}
         error={workflowsError}
         onRefresh={refetch}
+        onWorkflowSelect={(workflow) => {
+          window.location.href = `/workflows/${workflow.id}`;
+        }}
       />
       
       {/* User Information Section */}
