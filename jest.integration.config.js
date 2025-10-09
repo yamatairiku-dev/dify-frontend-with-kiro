@@ -2,11 +2,8 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
-  displayName: 'Integration Tests',
-  setupFilesAfterEnv: [
-    '<rootDir>/src/setupTests.ts'
-  ],
-  moduleNameMapper: {
+  setupFilesAfterEnv: ['<rootDir>/src/integration/setup.ts'],
+  moduleNameMapping: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(gif|ttf|eot|svg|png)$': 'test-file-stub',
   },
@@ -25,22 +22,11 @@ export default {
       },
     ],
   },
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/*.test.{ts,tsx}',
-    '!src/integration/**/*',
-    '!src/examples/**/*',
-    '!src/setupTests.ts',
-    '!src/main.tsx',
-    '!src/vite-env.d.ts'
-  ],
-  coverageDirectory: 'coverage/integration',
-  coverageReporters: ['text', 'lcov', 'html'],
   testMatch: [
-    '<rootDir>/src/integration/**/*.integration.test.{ts,tsx}'
+    '<rootDir>/src/integration/**/__tests__/**/*.(ts|tsx)',
+    '<rootDir>/src/integration/**/*.(test|spec).(ts|tsx)',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  testTimeout: 30000, // Longer timeout for integration tests
   clearMocks: true,
+  testTimeout: 30000, // Longer timeout for integration tests
 };
