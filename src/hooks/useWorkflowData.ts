@@ -427,7 +427,7 @@ export function useParallelWorkflowData(workflowId: string) {
       workflowState.refetch(),
       workflowListState.refetch(),
     ]);
-  }, [workflowState.refetch, workflowListState.refetch]);
+  }, [workflowState, workflowListState]);
 
   return {
     workflow: workflowState,

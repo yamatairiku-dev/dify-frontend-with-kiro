@@ -187,7 +187,7 @@ export const useSessionSecurity = (options: UseSessionSecurityOptions = {}) => {
     eventListenersRef.current.set(SessionSecurityEvent.SESSION_INVALIDATED, invalidatedListener);
     eventListenersRef.current.set(SessionSecurityEvent.SESSION_WARNING, warningListener);
     eventListenersRef.current.set(SessionSecurityEvent.SESSION_RESTORED, restoredListener);
-  }, [addSecurityEvent, logout, opts.onSessionTimeout, opts.onIdleTimeout, opts.onSuspiciousActivity, opts.onSessionInvalidated]);
+  }, [addSecurityEvent, logout, opts]);
 
   // Start monitoring
   const startMonitoring = useCallback(() => {

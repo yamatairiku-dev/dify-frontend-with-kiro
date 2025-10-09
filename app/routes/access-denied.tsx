@@ -19,7 +19,7 @@ interface LocationState {
     allowWildcard?: boolean;
   }>;
   requiredRoles?: string[];
-  userPermissions?: any[];
+  userPermissions?: Array<{ resource: string; actions: string[] }>;
   userRoles?: string[];
 }
 

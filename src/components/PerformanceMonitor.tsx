@@ -338,7 +338,7 @@ export const usePerformanceMonitoring = () => {
       const renderTime = endTime - startTime;
       setRenderTimes(prev => [...prev, renderTime].slice(-10));
     };
-  });
+  }, []); // Empty dependency array to prevent infinite updates
 
   const averageRenderTime = renderTimes.length > 0 
     ? renderTimes.reduce((sum, time) => sum + time, 0) / renderTimes.length 

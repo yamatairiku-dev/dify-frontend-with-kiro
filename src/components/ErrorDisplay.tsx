@@ -40,7 +40,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   style = {},
 }) => {
   const {
-    showStack = process.env.NODE_ENV === 'development',
+    showStack = process.env['NODE_ENV'] === 'development',
     showRetry = true,
     showReload = true,
     showGoHome = true,

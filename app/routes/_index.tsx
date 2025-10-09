@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { useEffect } from 'react';
 import type { MetaFunction } from 'react-router';
-import { Link, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { useAuthRequired } from '../../src/hooks/useProtectedRoute';
 import { useOptimizedWorkflowList } from '../../src/hooks/useOptimizedWorkflowData';

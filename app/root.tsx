@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useRouteError } from 'react-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from '../src/context/AuthContext';
 import { SessionTimeoutWarning } from '../src/components/SessionTimeoutWarning';
@@ -86,7 +86,7 @@ export default function App(): React.ReactElement {
             <SessionTimeoutWarning />
           </AuthProvider>
           <ReactQueryDevtools initialIsOpen={false} />
-          <PerformanceMonitor enabled={process.env.NODE_ENV === 'development'} />
+          <PerformanceMonitor enabled={process.env['NODE_ENV'] === 'development'} />
         </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />
