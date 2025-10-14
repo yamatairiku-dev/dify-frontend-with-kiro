@@ -207,7 +207,7 @@ function WorkflowExecutionContent(): React.ReactElement {
       borderRadius: '4px'
     };
     
-    if (type === 'string' && validation?.enum) {
+    if (type === 'string' && validation && typeof validation === 'object' && 'enum' in validation) {
       return (
         <div key={name} style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
@@ -224,7 +224,7 @@ function WorkflowExecutionContent(): React.ReactElement {
             style={fieldStyle}
           >
             <option value="">Select {label}</option>
-            {validation.enum.map((enumValue: string) => (
+            {(validation as { enum: string[] }).enum.map((enumValue: string) => (
               <option key={enumValue} value={enumValue}>{enumValue}</option>
             ))}
           </select>
@@ -279,8 +279,8 @@ function WorkflowExecutionContent(): React.ReactElement {
             type="number"
             value={value}
             onChange={(e) => handleInputChange(name, parseFloat(e.target.value) || 0)}
-            min={validation?.minimum}
-            max={validation?.maximum}
+            min={validation && typeof validation === 'object' && 'minimum' in validation ? (validation as { minimum: number }).minimum : undefined}
+            max={validation && typeof validation === 'object' && 'maximum' in validation ? (validation as { maximum: number }).maximum : undefined}
             style={fieldStyle}
             placeholder={`Enter ${label}`}
           />
@@ -308,8 +308,8 @@ function WorkflowExecutionContent(): React.ReactElement {
             value={value}
             onChange={(e) => handleInputChange(name, e.target.value)}
             rows={4}
-            minLength={validation?.minLength}
-            maxLength={validation?.maxLength}
+            minLength={validation && typeof validation === 'object' && 'minLength' in validation ? (validation as { minLength: number }).minLength : undefined}
+            maxLength={validation && typeof validation === 'object' && 'maxLength' in validation ? (validation as { maxLength: number }).maxLength : undefined}
             style={{
               ...fieldStyle,
               resize: 'vertical'

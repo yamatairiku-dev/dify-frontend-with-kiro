@@ -167,8 +167,8 @@ describe('GlobalErrorBoundary', () => {
     });
 
     it('should log to console in development', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      const originalEnv = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'development';
 
       render(
         <RouterWrapper>
@@ -187,7 +187,7 @@ describe('GlobalErrorBoundary', () => {
       );
       expect(mockConsole.groupEnd).toHaveBeenCalled();
 
-      process.env.NODE_ENV = originalEnv;
+      process.env['NODE_ENV'] = originalEnv;
     });
   });
 

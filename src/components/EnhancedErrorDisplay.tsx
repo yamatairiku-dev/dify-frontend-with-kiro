@@ -23,7 +23,7 @@ interface EnhancedErrorDisplayProps {
   error: AppError;
   onRetry?: () => Promise<void>;
   onDismiss?: () => void;
-  context?: any;
+  context?: Record<string, unknown>;
   compact?: boolean;
   showAsToast?: boolean;
   className?: string;
@@ -117,7 +117,7 @@ export const AuthenticationErrorDisplay: React.FC<{
   onRetry?: () => Promise<void>;
   onLogin?: () => void;
   onDismiss?: () => void;
-}> = ({ error, onRetry, onLogin, onDismiss }) => {
+}> = ({ error, onRetry, onLogin }) => {
   const actions = [
     ...(onRetry ? [{
       label: 'Try Again',
@@ -164,7 +164,7 @@ export const AuthorizationErrorDisplay: React.FC<{
   onGoBack?: () => void;
   onContactAdmin?: () => void;
   onDismiss?: () => void;
-}> = ({ error, onGoBack, onContactAdmin, onDismiss }) => {
+}> = ({ error, onGoBack, onContactAdmin }) => {
   const actions = [
     ...(onGoBack ? [{
       label: 'Go Back',
