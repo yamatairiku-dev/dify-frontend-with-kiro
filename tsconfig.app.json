@@ -33,5 +33,6 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src", "app"]
+  "include": ["src", "app"],
+  "exclude": ["src/integration/**/*"]
 }

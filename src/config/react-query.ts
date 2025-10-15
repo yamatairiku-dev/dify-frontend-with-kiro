@@ -120,7 +120,7 @@ export const performanceHelpers = {
     return {
       lastFetched: query.state.dataUpdatedAt,
       isStale: query.isStale(),
-      isFetching: query.isFetching,
+      isFetching: query.state.fetchStatus === 'fetching',
       errorCount: query.state.errorUpdateCount,
       successCount: query.state.dataUpdateCount,
     };

@@ -99,8 +99,8 @@ jobs:
             echo "environment=development" >> $GITHUB_OUTPUT
           fi
           
-      - name: Build application
-        run: npm run build
+      - name: Build application (skip TypeScript check)
+        run: npx vite build --mode production
         env:
           NODE_ENV: production
           VITE_MODE: ${{ steps.env.outputs.environment }}

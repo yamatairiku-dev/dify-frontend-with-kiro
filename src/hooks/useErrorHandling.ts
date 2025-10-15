@@ -243,7 +243,7 @@ export const useNetworkErrorHandling = (options: ErrorHandlingOptions = {}) => {
         isRetrying: false,
         retryCount: prev.retryCount + 1,
         lastError: retryError as AppError,
-        canRetry: (retryError as NetworkError).retryCount < (options.maxRetries || 3),
+        canRetry: ((retryError as NetworkError).retryCount || 0) < (options.maxRetries || 3),
       }));
 
       if (options.onRetryFailure) {
