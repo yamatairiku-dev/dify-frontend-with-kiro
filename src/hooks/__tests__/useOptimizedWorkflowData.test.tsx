@@ -229,7 +229,7 @@ describe('useOptimizedWorkflowData', () => {
       ];
 
       difyApiClient.getWorkflows.mockResolvedValue(mockWorkflows);
-      accessControlService.checkAccess.mockImplementation((user, resource) => ({
+      accessControlService.checkAccess.mockImplementation((user: any, resource: string) => ({
         allowed: resource === 'workflow:workflow-1',
       }));
 

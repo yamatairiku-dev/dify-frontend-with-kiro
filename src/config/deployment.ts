@@ -41,7 +41,7 @@ export interface DeploymentConfig {
 const developmentConfig: DeploymentConfig = {
   environment: 'development',
   api: {
-    baseUrl: import.meta.env.VITE_DIFY_API_BASE_URL || 'http://localhost:3000/api',
+    baseUrl: import.meta.env['VITE_DIFY_API_BASE_URL'] || 'http://localhost:3000/api',
     timeout: 30000,
     retryAttempts: 2,
     enableRequestSigning: false,
@@ -76,7 +76,7 @@ const developmentConfig: DeploymentConfig = {
 const stagingConfig: DeploymentConfig = {
   environment: 'staging',
   api: {
-    baseUrl: import.meta.env.VITE_DIFY_API_BASE_URL || 'https://staging-api.example.com',
+    baseUrl: import.meta.env['VITE_DIFY_API_BASE_URL'] || 'https://staging-api.example.com',
     timeout: 15000,
     retryAttempts: 3,
     enableRequestSigning: true,
@@ -111,7 +111,7 @@ const stagingConfig: DeploymentConfig = {
 const productionConfig: DeploymentConfig = {
   environment: 'production',
   api: {
-    baseUrl: import.meta.env.VITE_DIFY_API_BASE_URL || 'https://api.example.com',
+    baseUrl: import.meta.env['VITE_DIFY_API_BASE_URL'] || 'https://api.example.com',
     timeout: 10000,
     retryAttempts: 3,
     enableRequestSigning: true,
@@ -186,7 +186,7 @@ export function getBuildInfo() {
     version: (globalThis as any).__VERSION__ || '1.0.0',
     buildTime: (globalThis as any).__BUILD_TIME__ || new Date().toISOString(),
     mode: (globalThis as any).__MODE__ || import.meta.env.MODE,
-    commit: import.meta.env.VITE_GIT_COMMIT || 'unknown',
+    commit: import.meta.env['VITE_GIT_COMMIT'] || 'unknown',
   };
 }
 

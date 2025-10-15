@@ -161,8 +161,8 @@ export async function exampleAuthorizationErrorHandling() {
       userPermissions: ['workflow:read'], // User only has read permission
     });
   } catch (error) {
-    console.log('Authorization error handled:', error.message);
-    console.log('Error details:', error.details?.suggestions);
+    console.log('Authorization error handled:', (error as Error).message);
+    console.log('Error details:', (error as any).details?.suggestions);
   }
 }
 
@@ -198,7 +198,7 @@ export async function exampleUnifiedErrorHandling() {
       const result = await handleError(error, mockOperation);
       console.log(`  Result: ${result}`);
     } catch (handledError) {
-      console.log(`  Final error: ${handledError.message}`);
+      console.log(`  Final error: ${(handledError as Error).message}`);
     }
   }
 }
