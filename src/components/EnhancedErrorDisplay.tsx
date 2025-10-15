@@ -216,7 +216,7 @@ export const NetworkErrorDisplay: React.FC<{
   onRetry?: () => Promise<void>;
   onCheckConnection?: () => void;
   onDismiss?: () => void;
-}> = ({ error, onRetry, onCheckConnection, onDismiss }) => {
+}> = ({ error, onRetry, onCheckConnection }) => {
   const [isRetrying, setIsRetrying] = useState(false);
 
   const handleRetry = useCallback(async () => {
@@ -283,7 +283,7 @@ export const DifyApiErrorDisplay: React.FC<{
   onContactSupport?: () => void;
   onDismiss?: () => void;
   workflowName?: string;
-}> = ({ error, onRetry, onViewWorkflows, onContactSupport, onDismiss, workflowName }) => {
+}> = ({ error, onRetry, onViewWorkflows, onContactSupport, workflowName }) => {
   const [isRetrying, setIsRetrying] = useState(false);
 
   const handleRetry = useCallback(async () => {
