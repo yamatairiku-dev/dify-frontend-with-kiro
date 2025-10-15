@@ -25,7 +25,7 @@ describe('Security Configuration', () => {
 
   describe('getSecurityConfig', () => {
     it('should return development configuration', () => {
-      process.env.NODE_ENV = 'development';
+      process.env['NODE_ENV'] = 'development';
       
       const config = getSecurityConfig();
       
@@ -36,7 +36,7 @@ describe('Security Configuration', () => {
     });
 
     it('should return production configuration', () => {
-      process.env.NODE_ENV = 'production';
+      process.env['NODE_ENV'] = 'production';
       
       const config = getSecurityConfig();
       
@@ -55,8 +55,8 @@ describe('Security Configuration', () => {
     });
 
     it('should include API URLs from environment variables', () => {
-      process.env.VITE_API_BASE_URL = 'https://api.custom.com';
-      process.env.VITE_DIFY_API_URL = 'https://dify.custom.com';
+      process.env['VITE_API_BASE_URL'] = 'https://api.custom.com';
+      process.env['VITE_DIFY_API_URL'] = 'https://dify.custom.com';
       
       const config = getSecurityConfig();
       
@@ -96,7 +96,7 @@ describe('Security Configuration', () => {
 
   describe('getSecurityHeaders', () => {
     it('should return all security headers for production', () => {
-      process.env.NODE_ENV = 'production';
+      process.env['NODE_ENV'] = 'production';
       const config = getSecurityConfig();
       const headers = getSecurityHeaders(config);
       
@@ -110,7 +110,7 @@ describe('Security Configuration', () => {
     });
 
     it('should not include HSTS in development', () => {
-      process.env.NODE_ENV = 'development';
+      process.env['NODE_ENV'] = 'development';
       const config = getSecurityConfig();
       const headers = getSecurityHeaders(config);
       
@@ -118,7 +118,7 @@ describe('Security Configuration', () => {
     });
 
     it('should use report-only CSP in development', () => {
-      process.env.NODE_ENV = 'development';
+      process.env['NODE_ENV'] = 'development';
       const config = getSecurityConfig();
       const headers = getSecurityHeaders(config);
       
@@ -156,7 +156,7 @@ describe('Security Configuration', () => {
     });
 
     it('should detect unsafe directives in production', () => {
-      process.env.NODE_ENV = 'production';
+      process.env['NODE_ENV'] = 'production';
       
       const config = {
         ...getSecurityConfig(),
@@ -236,7 +236,7 @@ describe('Security Configuration', () => {
 
   describe('Environment-specific configurations', () => {
     it('should allow unsafe directives in development', () => {
-      process.env.NODE_ENV = 'development';
+      process.env['NODE_ENV'] = 'development';
       
       const config = getSecurityConfig();
       
@@ -245,7 +245,7 @@ describe('Security Configuration', () => {
     });
 
     it('should not allow unsafe directives in production', () => {
-      process.env.NODE_ENV = 'production';
+      process.env['NODE_ENV'] = 'production';
       
       const config = getSecurityConfig();
       
@@ -254,7 +254,7 @@ describe('Security Configuration', () => {
     });
 
     it('should include upgrade-insecure-requests in production', () => {
-      process.env.NODE_ENV = 'production';
+      process.env['NODE_ENV'] = 'production';
       
       const config = getSecurityConfig();
       
@@ -262,7 +262,7 @@ describe('Security Configuration', () => {
     });
 
     it('should not include upgrade-insecure-requests in development', () => {
-      process.env.NODE_ENV = 'development';
+      process.env['NODE_ENV'] = 'development';
       
       const config = getSecurityConfig();
       
