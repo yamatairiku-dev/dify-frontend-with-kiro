@@ -12,7 +12,7 @@ on:
       - develop
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
 
 jobs:
   # Test job - runs on all branches and PRs
@@ -99,8 +99,16 @@ jobs:
             echo "environment=development" >> $GITHUB_OUTPUT
           fi
           
-      - name: Build application (skip TypeScript check)
-        run: npx vite build --mode production
+      - name: Clear npm cache (if needed)
+        run: npm cache clean --force
+        continue-on-error: true
+        
+      - name: Build application
+        run: |
+          echo "Starting build process..."
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          npx vite build --mode production
         env:
           NODE_ENV: production
           VITE_MODE: ${{ steps.env.outputs.environment }}
@@ -111,6 +119,12 @@ jobs:
           VITE_DIFY_API_BASE_URL: ${{ secrets.DIFY_API_BASE_URL || 'https://api.example.com' }}
           VITE_OAUTH_REDIRECT_URI: ${{ secrets.OAUTH_REDIRECT_URI || 'https://app.example.com/callback' }}
           VITE_GIT_COMMIT: ${{ github.sha }}
+          
+      - name: Verify build output
+        run: |
+          echo "Build completed. Checking output..."
+          ls -la dist/client/
+          echo "Build verification successful"
           
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
