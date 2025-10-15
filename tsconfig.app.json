@@ -34,5 +34,10 @@
     "allowSyntheticDefaultImports": true
   },
   "include": ["src", "app"],
-  "exclude": ["src/integration/**/*"]
+  "exclude": [
+    "src/integration/**/*",
+    "src/**/__tests__/**/*",
+    "src/**/*.test.*",
+    "src/**/*.spec.*"
+  ]
 }
