@@ -56,7 +56,7 @@ export function getSecurityConfig(): SecurityConfig {
         ],
         'style-src': [
           "'self'",
-          "'unsafe-inline'", // Required for CSS-in-JS libraries
+          ...(isDevelopment ? ["'unsafe-inline'"] : []), // Only allow unsafe-inline in development
           'https://fonts.googleapis.com',
         ],
         'img-src': [
